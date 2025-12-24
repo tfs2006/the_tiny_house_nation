@@ -1,0 +1,11 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import AffiliateDisclosure from '../components/AffiliateDisclosure.astro';
+const { title, description, canonical, showAffiliateDisclosure = false } = Astro.props;
+---
+<BaseLayout {title} {description} {canonical}>
+  <article>
+    <slot />
+  </article>
+  {showAffiliateDisclosure && <AffiliateDisclosure />}
+</BaseLayout>

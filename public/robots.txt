@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tfs2006.github.io/the_tiny_house_nation/sitemap.xml

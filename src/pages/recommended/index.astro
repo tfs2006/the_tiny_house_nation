@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import products from '../../data/products.json';
+import ProductCard from '../../components/ProductCard.astro';
+const categories = Array.from(new Set(products.map(p => p.category)));
+---
+<BaseLayout title="Recommended Products" description="Curated product recommendations for tiny house living.">
+  <h1>Recommended Products</h1>
+  {categories.map(category => (
+    <section>
+      <h2>{category.charAt(0).toUpperCase() + category.slice(1)}</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:1.5rem;">
+        {products.filter(p => p.category === category).map(product => (
+          <ProductCard product={product} key={product.slug} />
+        ))}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import states from '../../data/states.json';
+---
+
+<BaseLayout title="Find Tiny House Info by State | The Tiny House Nation"
+  description="Browse tiny house laws, builders, and resources by U.S. state. Find guides and local info for California, Texas, and more."
+  canonical="https://tfs2006.github.io/the_tiny_house_nation/states/">
+  <h1>Tiny House Info by State</h1>
+  <p>Explore tiny house laws, builders, and resources for each U.S. state. Click a state to learn more.</p>
+  <ul>
+    {states.map(({ state }) => (
+      <li><a href={`/the_tiny_house_nation/states/${state.toLowerCase().replace(/\s+/g, '-')}/`}>{state}</a></li>
+    ))}
+  </ul>
+</BaseLayout>

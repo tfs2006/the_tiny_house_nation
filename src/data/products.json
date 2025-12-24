@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "tiny-solar-kit-100w",
+    "name": "Tiny Solar Kit 100W",
+    "category": "solar",
+    "shortDescription": "A compact 100W solar kit for tiny homes.",
+    "priceNote": "$199+ (varies)",
+    "affiliateUrl": "https://www.amazon.com/example-solar-kit",
+    "network": "amazon",
+    "image": "/the_tiny_house_nation/images/solar-kit.jpg",
+    "pros": ["Easy to install", "All-in-one package"],
+    "cons": ["Limited power for large appliances"]
+  },
+  {
+    "slug": "tiny-house-solar-pro-200w",
+    "name": "Tiny House Solar Pro 200W",
+    "category": "solar",
+    "shortDescription": "A 200W solar kit for higher energy needs.",
+    "priceNote": "$349+",
+    "affiliateUrl": "https://www.amazon.com/example-solar-pro-kit",
+    "network": "amazon",
+    "image": "/the_tiny_house_nation/images/solar-pro-kit.jpg",
+    "pros": ["Higher output", "Expandable"],
+    "cons": ["Heavier"]
+  },
+  {
+    "slug": "tiny-house-solar-flex-kit",
+    "name": "Tiny House Solar Flex Kit",
+    "category": "solar",
+    "shortDescription": "Flexible solar panels for curved roofs.",
+    "priceNote": "$299+",
+    "affiliateUrl": "https://www.amazon.com/example-solar-flex-kit",
+    "network": "amazon",
+    "image": "/the_tiny_house_nation/images/solar-flex-kit.jpg",
+    "pros": ["Flexible", "Lightweight"],
+    "cons": ["Lower efficiency"]
+  },
+  {
+    "slug": "composting-toilet-eco",
+    "name": "Eco Composting Toilet",
+    "category": "composting-toilet",
+    "shortDescription": "Odorless composting toilet for off-grid living.",
+    "priceNote": "$899+",
+    "affiliateUrl": "https://www.awin.com/example-composting-toilet",
+    "network": "awin",
+    "image": "/the_tiny_house_nation/images/composting-toilet.jpg",
+    "pros": ["No plumbing required", "Eco-friendly"],
+    "cons": ["Needs regular emptying"]
+  },
+  {
+    "slug": "spray-foam-insulation-kit",
+    "name": "Spray Foam Insulation Kit",
+    "category": "insulation",
+    "shortDescription": "DIY spray foam insulation for tiny homes.",
+    "priceNote": "$320+",
+    "affiliateUrl": "https://www.amazon.com/example-insulation-kit",
+    "network": "amazon",
+    "image": "/the_tiny_house_nation/images/insulation-kit.jpg",
+    "pros": ["High R-value", "Quick application"],
+    "cons": ["Protective gear required"]
+  },
+  {
+    "slug": "portable-water-filter-pro",
+    "name": "Portable Water Filter Pro",
+    "category": "water-filtration",
+    "shortDescription": "Portable water filter for safe drinking water anywhere.",
+    "priceNote": "$49+",
+    "affiliateUrl": "https://www.clickbank.com/example-water-filter",
+    "network": "clickbank",
+    "image": "/the_tiny_house_nation/images/water-filter.jpg",
+    "pros": ["Removes bacteria", "Lightweight"],
+    "cons": ["Small capacity"]
+  },
+  {
+    "slug": "tiny-house-toolkit",
+    "name": "Tiny House Toolkit",
+    "category": "tools",
+    "shortDescription": "Essential tools for tiny house DIY projects.",
+    "priceNote": "$129+",
+    "affiliateUrl": "https://www.impact.com/example-toolkit",
+    "network": "impact",
+    "image": "/the_tiny_house_nation/images/toolkit.jpg",
+    "pros": ["Comprehensive set", "Durable case"],
+    "cons": ["Some tools may be redundant"]
+  },
+  {
+    "slug": "smart-security-cam-mini",
+    "name": "Smart Security Cam Mini",
+    "category": "security",
+    "shortDescription": "Compact smart security camera for tiny homes.",
+    "priceNote": "$59+",
+    "affiliateUrl": "https://www.amazon.com/example-security-cam",
+    "network": "amazon",
+    "image": "/the_tiny_house_nation/images/security-cam.jpg",
+    "pros": ["Night vision", "Mobile alerts"],
+    "cons": ["Requires WiFi"]
+  },
+  {
+    "slug": "tiny-house-water-heater",
+    "name": "Tiny House Water Heater",
+    "category": "water-filtration",
+    "shortDescription": "Efficient water heater for small spaces.",
+    "priceNote": "$299+",
+    "affiliateUrl": "https://www.ebay.com/example-water-heater",
+    "network": "ebay",
+    "image": "/the_tiny_house_nation/images/water-heater.jpg",
+    "pros": ["Compact size", "Energy efficient"],
+    "cons": ["May require professional install"]
+  },
+  {
+    "slug": "tiny-house-door-lock",
+    "name": "Tiny House Door Lock",
+    "category": "security",
+    "shortDescription": "Heavy-duty lock for tiny house doors.",
+    "priceNote": "$39+",
+    "affiliateUrl": "https://www.jvzoo.com/example-door-lock",
+    "network": "jvzoo",
+    "image": "/the_tiny_house_nation/images/door-lock.jpg",
+    "pros": ["Easy to install", "Strong security"],
+    "cons": ["No smart features"]
+  }
+]

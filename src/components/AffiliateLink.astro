@@ -1,0 +1,35 @@
+---
+import { getAffiliateAttrs } from "../lib/affiliate";
+
+const {
+  href,
+  network,
+  label,
+  showDisclosure = true,
+  disclosureText = "Disclosure: This is an affiliate link. I may earn a commission if you buy."
+} = Astro.props;
+
+const attrs = getAffiliateAttrs();
+---
+
+<a
+  href={href}
+  {...attrs}
+  data-affiliate-network={network}
+>
+  {label ?? href}
+</a>
+
+{showDisclosure && (
+  <p class="affiliate-disclosure-inline">
+    {disclosureText}
+  </p>
+)}
+
+<style>
+  .affiliate-disclosure-inline {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    color: var(--muted-text, #444);
+  }
+</style>

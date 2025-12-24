@@ -1,0 +1,43 @@
+---
+import { Astro } from 'astro';
+import products from '../../data/products.json';
+
+export async function getStaticPaths() {
+  return products.map(product => ({
+    params: { slug: product.slug },
+    props: { slug: product.slug }
+  }));
+}
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AffiliateLink from '../../components/AffiliateLink.astro';
+const { slug } = Astro.props;
+const product = products.find(p => p.slug === slug);
+if (!product) throw new Error('Product not found');
+const canonical = `https://tfs2006.github.io/the_tiny_house_nation/recommended/${slug}/`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.shortDescription,
+  image: product.image ? `https://tfs2006.github.io${product.image}` : undefined,
+  offers: {
+    '@type': 'Offer',
+    url: product.affiliateUrl,
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    price: product.priceNote
+  }
+};
+---
+<BaseLayout title={product.name} description={product.shortDescription} canonical={canonical}>
+  <h1>{product.name}</h1>
+  {product.image && <img src={product.image} alt={product.name} style="max-width:300px;" />}
+  <p>{product.shortDescription}</p>
+  <p><strong>Price:</strong> {product.priceNote}</p>
+  <AffiliateLink href={product.affiliateUrl} network={product.network} label={`Buy on ${product.network.charAt(0).toUpperCase() + product.network.slice(1)}`} />
+  <h2>Pros</h2>
+  <ul>{product.pros.map(pro => <li>{pro}</li>)}</ul>
+  <h2>Cons</h2>
+  <ul>{product.cons.map(con => <li>{con}</li>)}</ul>
+  <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+</BaseLayout>
