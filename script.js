@@ -210,17 +210,21 @@ function renderBudgetTable() {
     els.budgetTable.innerHTML = '';
     let total = 0;
     
-    state.budget.forEach(item => {
-        total += item.cost;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${item.name}</td>
-            <td><span class="badge">${item.category}</span></td>
-            <td>${formatMoney(item.cost)}</td>
-            <td><button class="btn-delete" onclick="deleteBudget(${item.id})"><i class="fas fa-trash"></i></button></td>
-        `;
-        els.budgetTable.appendChild(tr);
-    });
+    if (state.budget.length === 0) {
+        els.budgetTable.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-light); padding: 20px;">No budget items added yet. Start by adding your expenses above.</td></tr>';
+    } else {
+        state.budget.forEach(item => {
+            total += item.cost;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.name}</td>
+                <td><span class="badge">${item.category}</span></td>
+                <td>${formatMoney(item.cost)}</td>
+                <td><button class="btn-delete" onclick="deleteBudget(${item.id})"><i class="fas fa-trash"></i></button></td>
+            `;
+            els.budgetTable.appendChild(tr);
+        });
+    }
     
     els.budgetTotal.textContent = formatMoney(total);
 }
@@ -263,15 +267,19 @@ function renderWeightList() {
     els.weightList.innerHTML = '';
     let itemsWeight = 0;
     
-    state.weight.items.forEach(item => {
-        itemsWeight += item.weight;
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span>${item.name}</span>
-            <span>${item.weight} lbs <button class="btn-delete" onclick="deleteWeight(${item.id})"><i class="fas fa-times"></i></button></span>
-        `;
-        els.weightList.appendChild(li);
-    });
+    if (state.weight.items.length === 0) {
+        els.weightList.innerHTML = '<li style="justify-content:center; color:var(--text-light);">No items added. Add materials to track weight.</li>';
+    } else {
+        state.weight.items.forEach(item => {
+            itemsWeight += item.weight;
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${item.name}</span>
+                <span>${item.weight} lbs <button class="btn-delete" onclick="deleteWeight(${item.id})"><i class="fas fa-times"></i></button></span>
+            `;
+            els.weightList.appendChild(li);
+        });
+    }
     
     // Update Meter
     const totalWeight = itemsWeight + state.weight.trailerWeight;
@@ -319,16 +327,20 @@ function setupSolar() {
     };
 }
 
-function renderSolarList() {
-    els.solarList.innerHTML = '';
-    let totalWh = 0;
-    
-    state.solar.forEach(item => {
-        const dailyWh = item.watts * item.hours;
-        totalWh += dailyWh;
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span>${item.name} (${item.watts}W x ${item.hours}h)</span>
+funcif (state.solar.length === 0) {
+        els.solarList.innerHTML = '<li style="justify-content:center; color:var(--text-light);">No appliances added. Add items to calculate solar needs.</li>';
+    } else {
+        state.solar.forEach(item => {
+            const dailyWh = item.watts * item.hours;
+            totalWh += dailyWh;
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${item.name} (${item.watts}W x ${item.hours}h)</span>
+                <span>${dailyWh} Wh <button class="btn-delete" onclick="deleteSolar(${item.id})"><i class="fas fa-times"></i></button></span>
+            `;
+            els.solarList.appendChild(li);
+        });
+    }     <span>${item.name} (${item.watts}W x ${item.hours}h)</span>
             <span>${dailyWh} Wh <button class="btn-delete" onclick="deleteSolar(${item.id})"><i class="fas fa-times"></i></button></span>
         `;
         els.solarList.appendChild(li);
@@ -371,18 +383,22 @@ function setupInsulation() {
 }
 
 function renderLayerList() {
-    els.layerList.innerHTML = '';
-    let totalR = 0;
-    let totalThick = 0;
+    if (state.insulation.length === 0) {
+        els.layerList.innerHTML = '<li style="justify-content:center; color:var(--text-light);">No insulation layers added. Build your wall assembly above.</li>';
+    } else {
+        state.insulation.forEach(item => {
+            const itemR = item.rPerInch * item.thickness;
+            totalR += itemR;
+            totalThick += item.thickness;
 
-    state.insulation.forEach(item => {
-        const itemR = item.rPerInch * item.thickness;
-        totalR += itemR;
-        totalThick += item.thickness;
-
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span>${item.name} (${item.thickness}")</span>
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${item.name} (${item.thickness}")</span>
+                <span>R-${itemR.toFixed(1)} <button class="btn-delete" onclick="deleteLayer(${item.id})"><i class="fas fa-times"></i></button></span>
+            `;
+            els.layerList.appendChild(li);
+        });
+    }     <span>${item.name} (${item.thickness}")</span>
             <span>R-${itemR.toFixed(1)} <button class="btn-delete" onclick="deleteLayer(${item.id})"><i class="fas fa-times"></i></button></span>
         `;
         els.layerList.appendChild(li);
