@@ -410,7 +410,11 @@ function setupSolar() {
     };
 }
 
-funcif (state.solar.length === 0) {
+function renderSolarList() {
+    els.solarList.innerHTML = '';
+    let totalWh = 0;
+    
+    if (state.solar.length === 0) {
         els.solarList.innerHTML = '<li style="justify-content:center; color:var(--text-light);">No appliances added. Add items to calculate solar needs.</li>';
     } else {
         state.solar.forEach(item => {
@@ -423,11 +427,7 @@ funcif (state.solar.length === 0) {
             `;
             els.solarList.appendChild(li);
         });
-    }     <span>${item.name} (${item.watts}W x ${item.hours}h)</span>
-            <span>${dailyWh} Wh <button class="btn-delete" onclick="deleteSolar(${item.id})"><i class="fas fa-times"></i></button></span>
-        `;
-        els.solarList.appendChild(li);
-    });
+    }
     
     // Calculations
     // 1. Panels: Total Wh / 5 sun hours / 0.8 efficiency
