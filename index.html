@@ -37,6 +37,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CPZ8WZRMF0"></script>
@@ -92,6 +93,18 @@
                 </header>
                 
                 <div class="dashboard-grid">
+                    <!-- Progress Card -->
+                    <div class="card full-width-card">
+                        <div class="progress-header">
+                            <h3>Build Planning Progress</h3>
+                            <span id="progress-text">0% Ready</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar" id="main-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <p class="progress-tip" id="progress-tip">Start by adding items to your budget!</p>
+                    </div>
+
                     <div class="card summary-card">
                         <div class="icon-box budget"><i class="fas fa-dollar-sign"></i></div>
                         <div class="info">
@@ -232,7 +245,7 @@
             </div>
 
             <!-- Insulation View -->
-            <div id="insulation" class="view">
+            <div id="inDesign a high-performance thermal envelope. Calculate your wall's total <strong>R-Value</strong> and thickness to ensure year-round comfort and energy efficiency
                 <header>
                     <h1>Insulation Calculator</h1>
                     <p>Calculate wall thickness and R-Value.</p>
@@ -274,7 +287,7 @@
             <div id="water" class="view">
                 <header>
                     <h1>Water Usage Estimator</h1>
-                    <p>Estimate daily water needs for tank sizing.</p>
+                    <p>Size your <strong>Fresh</strong> and <strong>Grey Water Tanks</strong> correctly. Estimate daily gallon usage based on your lifestyle (showers, dishes, etc.).</p>
                 </header>
                 <div class="tool-container">
                     <div class="solar-results">
@@ -332,7 +345,9 @@
                         <option value="Plumbing">Plumbing</option>
                         <option value="Interior">Interior Finishes</option>
                         <option value="Appliances">Appliances</option>
-                        <option value="Tools">Tools & Permits</option>
+     div id="toast-container"></div>
+
+    <                   <option value="Tools">Tools & Permits</option>
                     </select>
                 </div>
                 <div class="form-group">

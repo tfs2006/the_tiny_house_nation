@@ -24,6 +24,10 @@ const els = {
     dashEnergy: document.getElementById('dash-total-energy'),
     chartCanvas: document.getElementById('dashboardChart'),
     exportPdfBtn: document.getElementById('exportPdfBtn'),
+    progressBar: document.getElementById('main-progress-bar'),
+    progressText: document.getElementById('progress-text'),
+    progressTip: document.getElementById('progress-tip'),
+    toastContainer: document.getElementById('toast-container'),
     
     // Budget
     budgetTable: document.querySelector('#budgetTable tbody'),
@@ -143,6 +147,72 @@ function updateDashboard() {
     
     // Update Chart
     updateChart();
+    updateProgress();
+}
+
+function updateProgress() {
+    let score = 0;
+    const tips = [];
+
+    // 1. Budget Started
+    if (state.budget.length > 0) { score += 20; } 
+    else { tips.push("Start by adding items to your budget!"); }
+
+    // 2. Weight Tracked
+    if (state.weight.items.length > 0) { score += 20; }
+    else { tips.push("Don't forget to track material weights."); }
+
+    // 3. Solar Planned
+    if (state.solar.length > 0) { score += 20; }
+    else { tips.push("Planning off-grid? Size your solar system."); }
+
+    // 4. Insulation
+    if (state.insulation.length > 0) { score += 20; }
+    else { tips.push("Check your R-Values in the Insulation tab."); }
+
+    // 5. Water
+    if (state.water.length > 0) { score += 20; }
+    else { tips.push("Estimate your water usage for tank sizing."); }
+
+    // Update UI
+    if (els.progressBar) {
+        els.progressBar.style.width = `${score}%`;
+        els.progressText.textContent = `${score}% Ready`;
+        
+        if (score === 100) {
+            els.progressTip.textContent = "You're all set! Ready to build.";
+            els.exportPdfBtn.classList.add('btn-pulse');
+        } else {
+            els.progressTip.textContent = tips[0] || "Keep going!";
+            els.exportPdfBtn.classList.remove('btn-pulse');
+        }
+    }
+}
+
+function showToast(message, type = 'success') {
+    if (!els.toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+    
+    toast.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <div class="toast-content">
+            <strong>${type === 'success' ? 'Awesome!' : 'Note'}</strong>
+            <p>${message}</p>
+        </div>
+    `;
+showToast(`Added ${name} to budget!`);
+        
+    els.toastContainer.appendChild(toast);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'fadeOutRight 0.3s forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 function updateChart() {
@@ -257,6 +327,7 @@ function setupWeight() {
             state.weight.items.push({ id: Date.now(), name, weight });
             saveData();
             renderWeightList();
+            showToast(`Tracked weight for ${name}`);
             els.weightItemName.value = '';
             els.weightItemLbs.value = '';
         }
@@ -320,6 +391,7 @@ function setupSolar() {
             state.solar.push({ id: Date.now(), name, watts, hours });
             saveData();
             renderSolarList();
+            showToast(`Added ${name} to solar plan`);
             els.solarAppliance.value = '';
             els.solarWatts.value = '';
             els.solarHours.value = '';
@@ -377,6 +449,7 @@ function setupInsulation() {
             state.insulation.push({ id: Date.now(), name: materialName, rPerInch, thickness });
             saveData();
             renderLayerList();
+            showToast(`Added ${materialName} layer`);
             els.insulThickness.value = '';
         }
     };
@@ -428,17 +501,21 @@ function setupWater() {
             saveData();
             renderWaterList();
             els.waterQuantity.value = '';
-        }
-    };
-}
+    if (state.water.length === 0) {
+        els.waterList.innerHTML = '<li style="justify-content:center; color:var(--text-light);">No water activities added. Estimate your daily usage above.</li>';
+    } else {
+        state.water.forEach(item => {
+            const itemGal = item.factor * item.quantity;
+            totalGal += itemGal;
 
-function renderWaterList() {
-    els.waterList.innerHTML = '';
-    let totalGal = 0;
-
-    state.water.forEach(item => {
-        const itemGal = item.factor * item.quantity;
-        totalGal += itemGal;
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${item.name} (x${item.quantity})</span>
+                <span>${itemGal.toFixed(1)} Gal <button class="btn-delete" onclick="deleteWater(${item.id})"><i class="fas fa-times"></i></button></span>
+            `;
+            els.waterList.appendChild(li);
+        });
+    } totalGal += itemGal;
 
         const li = document.createElement('li');
         li.innerHTML = `
@@ -468,6 +545,17 @@ function formatMoney(amount) {
 
 // --- PDF Generation ---
 function generatePDF() {
+    // Celebration!
+    if (typeof confetti !== 'undefined') {
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#5c946e', '#fdcb6e', '#74b9ff']
+        });
+    }
+    showToast("Generating your report...", "info");
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
