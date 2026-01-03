@@ -3,114 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiny House Nation: Builder Tycoon</title>
+    <title>Tiny House Build Companion</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-    <div id="game-container">
-        <header>
+    <div class="app-container">
+        <aside class="sidebar">
             <div class="brand">
                 <i class="fas fa-home"></i>
-                <h1>Tiny House Nation</h1>
+                <span>THN Companion</span>
             </div>
-            <div class="stats-bar">
-                <div class="stat-group resources">
-                    <div class="stat" title="Wood">
-                        <i class="fas fa-tree"></i>
-                        <span id="wood" class="value">0</span>
-                    </div>
-                    <div class="stat" title="Metal">
-                        <i class="fas fa-cube"></i>
-                        <span id="metal" class="value">0</span>
-                    </div>
-                    <div class="stat" title="Funds">
-                        <i class="fas fa-dollar-sign"></i>
-                        <span id="money" class="value">0</span>
-                    </div>
-                </div>
-                <div class="stat-group prestige">
-                    <div class="stat" title="Reputation">
-                        <i class="fas fa-star"></i>
-                        <span id="reputation" class="value">0</span>
-                    </div>
-                    <div class="stat" title="Population">
-                        <i class="fas fa-users"></i>
-                        <span id="population" class="value">0</span>
-                    </div>
-                </div>
+            <nav>
+                <button class="nav-btn active" data-tab="dashboard">
+                    <i class="fas fa-columns"></i> Dashboard
+                </button>
+                <button class="nav-btn" data-tab="budget">
+                    <i class="fas fa-calculator"></i> Budget Tracker
+                </button>
+                <button class="nav-btn" data-tab="weight">
+                    <i class="fas fa-balance-scale"></i> Weight Estimator
+                </button>
+                <button class="nav-btn" data-tab="solar">
+                    <i class="fas fa-sun"></i> Solar Sizing
+                </button>
+                <button class="nav-btn" data-tab="insulation">
+                    <i class="fas fa-layer-group"></i> Insulation
+                </button>
+                <button class="nav-btn" data-tab="water">
+                    <i class="fas fa-tint"></i> Water
+                </button>
+            </nav>
+            <div class="save-status" id="saveStatus">
+                <i class="fas fa-check-circle"></i> Auto-saved
             </div>
-        </header>
+        </aside>
 
-        <main>
-            <div class="left-panel">
-                <div class="scene-container">
-                    <canvas id="gameCanvas"></canvas>
-                    <div id="floating-text-container"></div>
-                </div>
+        <main class="content-area">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="view active">
+                <header>
+                    <div>
+                        <h1>Project Overview</h1>
+                        <p>Welcome to your Tiny House build planner.</p>
+                    </div>
+                    <button class="btn-primary" id="exportPdfBtn"><i class="fas fa-file-pdf"></i> Export Report</button>
+                </header>
                 
-                <div class="controls-area">
-                    <div class="action-buttons">
-                        <button id="gatherWoodBtn" class="action-btn wood-btn">
-                            <div class="icon"><i class="fas fa-tree"></i></div>
-                            <div class="label">Gather Wood</div>
-                            <div class="rate" id="wood-rate">+1</div>
-                        </button>
-                        
-                        <button id="gatherMetalBtn" class="action-btn metal-btn">
-                            <div class="icon"><i class="fas fa-hammer"></i></div>
-                            <div class="label">Gather Metal</div>
-                            <div class="rate" id="metal-rate">+1</div>
-                        </button>
-
-                        <button id="buildBtn" class="action-btn build-btn disabled">
-                            <div class="icon"><i class="fas fa-hard-hat"></i></div>
-                            <div class="label">Build House</div>
-                            <div class="cost" id="build-cost">Cost: 10 Wood</div>
-                            <div class="progress-overlay" id="build-progress"></div>
-                        </button>
+                <div class="dashboard-grid">
+                    <div class="card summary-card">
+                        <div class="icon-box budget"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="info">
+                            <h3>Total Budget</h3>
+                            <p class="big-number" id="dash-total-cost">$0</p>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="icon-box weight"><i class="fas fa-weight-hanging"></i></div>
+                        <div class="info">
+                            <h3>Est. Weight</h3>
+                            <p class="big-number" id="dash-total-weight">0 lbs</p>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="icon-box solar"><i class="fas fa-bolt"></i></div>
+                        <div class="info">
+                            <h3>Daily Energy</h3>
+                            <p class="big-number" id="dash-total-energy">0 Wh</p>
+                        </div>
                     </div>
                 </div>
-                <div id="message-log">Start your tiny house journey! Gather materials first.</div>
+
+                <div class="card chart-card">
+                    <h3>Budget Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
+                </div>
             </div>
 
-            <div class="right-panel">
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="blueprints">
-                        <i class="fas fa-drafting-compass"></i> Blueprints
-                    </button>
-                    <button class="tab-btn" data-tab="upgrades">
-                        <i class="fas fa-tools"></i> Upgrades
-                    </button>
-                    <button class="tab-btn" data-tab="map">
-                        <i class="fas fa-map-marked-alt"></i> Map
-                    </button>
-                </div>
+            <!-- Budget View -->
+            <div id="budget" class="view">
+                <header>
+                    <h1>Budget Tracker</h1>
+                    <button class="btn-primary" id="addBudgetBtn"><i class="fas fa-plus"></i> Add Item</button>
+                </header>
                 
-                <div id="blueprints" class="tab-content active">
-                    <h2>Select Design</h2>
-                    <div id="blueprint-list" class="card-list">
-                        <!-- Injected by JS -->
+                <div class="tool-container">
+                    <div class="table-responsive">
+                        <table id="budgetTable">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Cost</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="total-row">
+                        <span>Total Estimated Cost:</span>
+                        <span id="budgetTotalDisplay">$0.00</span>
                     </div>
                 </div>
+            </div>
 
-                <div id="upgrades" class="tab-content">
-                    <h2>Tech & Crew</h2>
-                    <div id="upgrade-list" class="card-list">
-                        <!-- Injected by JS -->
+            <!-- Weight View -->
+            <div id="weight" class="view">
+                <header>
+                    <h1>Weight Estimator</h1>
+                    <div class="header-inputs">
+                        <label>Trailer GVWR (lbs): <input type="number" id="trailerGvwr" value="10000"></label>
+                        <label>Trailer Weight (lbs): <input type="number" id="trailerWeight" value="1500"></label>
                     </div>
+                </header>
+
+                <div class="tool-container">
+                    <div class="weight-meter-container">
+                        <div class="meter-label">
+                            <span>Payload Usage</span>
+                            <span id="payloadDisplay">0 / 8500 lbs</span>
+                        </div>
+                        <div class="meter-bar">
+                            <div id="weightFill" class="meter-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="weightWarning" class="warning-text"></div>
+                    </div>
+
+                    <div class="add-item-form">
+                        <input type="text" id="weightItemName" placeholder="Item Name (e.g. Framing Lumber)">
+                        <input type="number" id="weightItemLbs" placeholder="Weight (lbs)">
+                        <button class="btn-secondary" id="addWeightBtn">Add</button>
+                    </div>
+
+                    <ul id="weightList" class="item-list">
+                        <!-- Injected by JS -->
+                    </ul>
                 </div>
+            </div>
 
-                <div id="map" class="tab-content">
-                    <h2>Expand Territory</h2>
-                    <div id="state-list" class="card-list">
-                        <!-- Injected by JS -->
+            <!-- Solar View -->
+            <div id="solar" class="view">
+                <header>
+                    <h1>Solar System Sizing</h1>
+                    <p>Calculate your power needs to go off-grid.</p>
+                </header>
+
+                <div class="tool-container">
+                    <div class="solar-results">
+                        <div class="result-box">
+                            <h4>Daily Consumption</h4>
+                            <span id="totalWh">0 Wh</span>
+                        </div>
+                        <div class="result-box">
+                            <h4>Rec. Solar Panels</h4>
+                            <span id="recPanels">0 W</span>
+                            <small>(Assuming 5 peak sun hours)</small>
+                        </div>
+                        <div class="result-box">
+                            <h4>Rec. Battery Bank</h4>
+                            <span id="recBattery">0 Ah</span>
+                            <small>(@ 12V, 50% depth of discharge)</small>
+                        </div>
                     </div>
+
+                    <div class="add-item-form">
+                        <input type="text" id="solarAppliance" placeholder="Appliance (e.g. LED Lights)">
+                        <input type="number" id="solarWatts" placeholder="Watts">
+                        <input type="number" id="solarHours" placeholder="Hours/Day">
+                        <button class="btn-secondary" id="addSolarBtn">Add</button>
+                    </div>
+
+                    <ul id="solarList" class="item-list">
+                        <!-- Injected by JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Insulation View -->
+            <div id="insulation" class="view">
+                <header>
+                    <h1>Insulation Calculator</h1>
+                    <p>Calculate wall thickness and R-Value.</p>
+                </header>
+                <div class="tool-container">
+                    <div class="solar-results">
+                        <div class="result-box">
+                            <h4>Total R-Value</h4>
+                            <span id="totalRValue">R-0</span>
+                        </div>
+                        <div class="result-box">
+                            <h4>Wall Thickness</h4>
+                            <span id="totalThickness">0"</span>
+                        </div>
+                    </div>
+                    
+                    <div class="add-item-form">
+                        <select id="insulMaterial">
+                            <option value="6.5">Closed Cell Spray Foam (R-6.5/in)</option>
+                            <option value="5.0">XPS Rigid Foam (R-5.0/in)</option>
+                            <option value="4.0">Mineral Wool (R-4.0/in)</option>
+                            <option value="3.5">Fiberglass (R-3.5/in)</option>
+                            <option value="1.2">Plywood/OSB (R-1.2/in)</option>
+                            <option value="0.45">Drywall (R-0.45/in)</option>
+                            <option value="0.8">Wood Siding (R-0.8/in)</option>
+                            <option value="0">Other (Custom)</option>
+                        </select>
+                        <input type="number" id="insulThickness" placeholder="Thickness (inches)" step="0.1">
+                        <button class="btn-secondary" id="addLayerBtn">Add Layer</button>
+                    </div>
+
+                    <ul id="layerList" class="item-list">
+                        <!-- Injected by JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Water View -->
+            <div id="water" class="view">
+                <header>
+                    <h1>Water Usage Estimator</h1>
+                    <p>Estimate daily water needs for tank sizing.</p>
+                </header>
+                <div class="tool-container">
+                    <div class="solar-results">
+                        <div class="result-box">
+                            <h4>Daily Fresh Water</h4>
+                            <span id="totalGallons">0 Gal</span>
+                        </div>
+                        <div class="result-box">
+                            <h4>Rec. Grey Tank</h4>
+                            <span id="recGreyTank">0 Gal</span>
+                            <small>(Capacity for 3 days)</small>
+                        </div>
+                    </div>
+
+                    <div class="add-item-form">
+                        <select id="waterActivity">
+                            <option value="2.5">Shower (2.5 gal/min)</option>
+                            <option value="1.5">Kitchen Sink (1.5 gal/min)</option>
+                            <option value="0.5">Bathroom Sink (0.5 gal/min)</option>
+                            <option value="1.6">Flush Toilet (1.6 gal/flush)</option>
+                            <option value="0">Compost Toilet (0 gal)</option>
+                            <option value="1">Drinking/Cooking (1 gal/day)</option>
+                        </select>
+                        <input type="number" id="waterQuantity" placeholder="Minutes or Count">
+                        <button class="btn-secondary" id="addWaterBtn">Add</button>
+                    </div>
+
+                    <ul id="waterList" class="item-list">
+                        <!-- Injected by JS -->
+                    </ul>
                 </div>
             </div>
         </main>
     </div>
+
+    <!-- Modal for Budget -->
+    <div id="budgetModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Budget Item</h2>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="budgetName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="budgetCategory">
+                        <option value="Trailer">Trailer & Foundation</option>
+                        <option value="Lumber">Lumber & Framing</option>
+                        <option value="Exterior">Exterior (Siding/Roof)</option>
+                        <option value="Windows">Windows & Doors</option>
+                        <option value="Insulation">Insulation</option>
+                        <option value="Electrical">Electrical & Solar</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Interior">Interior Finishes</option>
+                        <option value="Appliances">Appliances</option>
+                        <option value="Tools">Tools & Permits</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estimated Cost ($)</label>
+                    <input type="number" id="budgetCost" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Item</button>
+            </form>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

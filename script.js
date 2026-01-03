@@ -1,588 +1,551 @@
-// --- Game Configuration ---
-
-const BLUEPRINTS = [
-    {
-        id: 'basic',
-        name: 'The Starter Box',
-        desc: 'Simple, affordable, gets the job done.',
-        cost: { wood: 20, metal: 0 },
-        reward: 100,
-        reputation: 1,
-        color: '#e67e22',
-        roofColor: '#d35400',
-        width: 120,
-        height: 100,
-        reqRep: 0
+// --- State Management ---
+const defaultState = {
+    budget: [],
+    weight: {
+        trailerGvwr: 10000,
+        trailerWeight: 1500,
+        items: []
     },
-    {
-        id: 'cabin',
-        name: 'Rustic Cabin',
-        desc: 'Cozy wood finish. Tourists love it.',
-        cost: { wood: 100, metal: 10 },
-        reward: 350,
-        reputation: 5,
-        color: '#8d6e63',
-        roofColor: '#5d4037',
-        width: 160,
-        height: 120,
-        reqRep: 10
-    },
-    {
-        id: 'container',
-        name: 'Container Home',
-        desc: 'Modern industrial chic. Durable.',
-        cost: { wood: 20, metal: 150 },
-        reward: 800,
-        reputation: 12,
-        color: '#3498db',
-        roofColor: '#2980b9',
-        width: 200,
-        height: 100,
-        reqRep: 50
-    },
-    {
-        id: 'aframe',
-        name: 'A-Frame Retreat',
-        desc: 'Iconic design. High viral potential.',
-        cost: { wood: 400, metal: 50 },
-        reward: 1500,
-        reputation: 25,
-        color: '#795548',
-        roofColor: '#3e2723',
-        width: 180,
-        height: 160,
-        isAFrame: true,
-        reqRep: 150
-    },
-    {
-        id: 'luxury',
-        name: 'Luxury Tiny Villa',
-        desc: 'All the amenities in 400 sq ft.',
-        cost: { wood: 1000, metal: 500 },
-        reward: 5000,
-        reputation: 60,
-        color: '#ecf0f1',
-        roofColor: '#2c3e50',
-        width: 240,
-        height: 140,
-        reqRep: 500
-    }
-];
-
-const UPGRADES = [
-    {
-        id: 'axe',
-        name: 'Sharper Axe',
-        desc: '+1 Wood per click',
-        cost: { money: 50 },
-        effect: (s) => s.woodRate++,
-        trigger: (s) => true
-    },
-    {
-        id: 'magnet',
-        name: 'Scrap Magnet',
-        desc: '+1 Metal per click',
-        cost: { money: 100 },
-        effect: (s) => s.metalRate++,
-        trigger: (s) => s.totalMetalGathered > 10
-    },
-    {
-        id: 'crew',
-        name: 'Volunteer Crew',
-        desc: 'Auto-gather 1 Wood/sec',
-        cost: { money: 250 },
-        effect: (s) => s.autoWood += 1,
-        trigger: (s) => s.money > 100
-    },
-    {
-        id: 'scavenger',
-        name: 'Scrap Scavenger',
-        desc: 'Auto-gather 1 Metal/sec',
-        cost: { money: 500 },
-        effect: (s) => s.autoMetal += 1,
-        trigger: (s) => s.totalMetalGathered > 50
-    },
-    {
-        id: 'nailgun',
-        name: 'Nail Gun',
-        desc: 'Build 2x faster',
-        cost: { money: 1000 },
-        effect: (s) => s.buildPower *= 2,
-        trigger: (s) => s.housesBuilt > 5
-    },
-    {
-        id: 'prefab',
-        name: 'Prefab Factory',
-        desc: 'Auto-build houses slowly',
-        cost: { money: 5000 },
-        effect: (s) => s.autoBuild += 1,
-        trigger: (s) => s.housesBuilt > 10
-    }
-];
-
-const STATES = [
-    { name: "Oregon", cost: 0, desc: "The birthplace of the movement.", bg: "#81c784" },
-    { name: "Texas", cost: 2000, desc: "Bigger land for tiny houses.", bg: "#e6ee9c" },
-    { name: "California", cost: 10000, desc: "High demand, high prices.", bg: "#fff59d" },
-    { name: "Colorado", cost: 50000, desc: "Mountain views increase value.", bg: "#a5d6a7" },
-    { name: "New York", cost: 200000, desc: "Urban infill revolution.", bg: "#b0bec5" }
-];
-
-// --- Game State ---
-
-const state = {
-    wood: 0,
-    metal: 0,
-    money: 0,
-    reputation: 0,
-    population: 0,
-    
-    woodRate: 1,
-    metalRate: 1,
-    buildPower: 1,
-    
-    autoWood: 0,
-    autoMetal: 0,
-    autoBuild: 0,
-    
-    currentBlueprintId: 0,
-    currentStateId: 0,
-    
-    isBuilding: false,
-    buildProgress: 0,
-    
-    // Stats for unlocks
-    totalMetalGathered: 0,
-    housesBuilt: 0,
-    
-    upgradesBought: []
+    solar: [],
+    insulation: [],
+    water: []
 };
 
-// --- Visual System (Canvas) ---
+let state = JSON.parse(localStorage.getItem('thn_companion_data')) || defaultState;
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
+// --- DOM Elements ---
+const els = {
+    navBtns: document.querySelectorAll('.nav-btn'),
+    views: document.querySelectorAll('.view'),
+    
+    // Dashboard
+    dashCost: document.getElementById('dash-total-cost'),
+    dashWeight: document.getElementById('dash-total-weight'),
+    dashEnergy: document.getElementById('dash-total-energy'),
+    chartCanvas: document.getElementById('dashboardChart'),
+    exportPdfBtn: document.getElementById('exportPdfBtn'),
+    
+    // Budget
+    budgetTable: document.querySelector('#budgetTable tbody'),
+    budgetTotal: document.getElementById('budgetTotalDisplay'),
+    addBudgetBtn: document.getElementById('addBudgetBtn'),
+    budgetModal: document.getElementById('budgetModal'),
+    budgetForm: document.getElementById('budgetForm'),
+    closeModal: document.querySelector('.close'),
+    
+    // Weight
+    trailerGvwr: document.getElementById('trailerGvwr'),
+    trailerWeight: document.getElementById('trailerWeight'),
+    payloadDisplay: document.getElementById('payloadDisplay'),
+    weightFill: document.getElementById('weightFill'),
+    weightWarning: document.getElementById('weightWarning'),
+    weightList: document.getElementById('weightList'),
+    addWeightBtn: document.getElementById('addWeightBtn'),
+    weightItemName: document.getElementById('weightItemName'),
+    weightItemLbs: document.getElementById('weightItemLbs'),
+    
+    // Solar
+    solarList: document.getElementById('solarList'),
+    addSolarBtn: document.getElementById('addSolarBtn'),
+    solarAppliance: document.getElementById('solarAppliance'),
+    solarWatts: document.getElementById('solarWatts'),
+    solarHours: document.getElementById('solarHours'),
+    totalWh: document.getElementById('totalWh'),
+    recPanels: document.getElementById('recPanels'),
+    recBattery: document.getElementById('recBattery'),
 
-function resizeCanvas() {
-    if (canvas.parentElement) {
-        canvas.width = canvas.parentElement.clientWidth || 800;
-        canvas.height = canvas.parentElement.clientHeight || 600;
-    }
-}
-window.addEventListener('resize', resizeCanvas);
+    // Insulation
+    layerList: document.getElementById('layerList'),
+    addLayerBtn: document.getElementById('addLayerBtn'),
+    insulMaterial: document.getElementById('insulMaterial'),
+    insulThickness: document.getElementById('insulThickness'),
+    totalRValue: document.getElementById('totalRValue'),
+    totalThickness: document.getElementById('totalThickness'),
 
-class Particle {
-    constructor(x, y, color, type) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.size = Math.random() * 5 + 2;
-        this.speedX = Math.random() * 4 - 2;
-        this.speedY = Math.random() * -4 - 1;
-        this.gravity = 0.2;
-        this.life = 1.0;
-        this.type = type; // 'wood', 'metal', 'confetti'
-    }
-    
-    update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        this.speedY += this.gravity;
-        this.life -= 0.02;
-    }
-    
-    draw(ctx) {
-        ctx.globalAlpha = this.life;
-        ctx.fillStyle = this.color;
-        if (this.type === 'confetti') {
-            ctx.fillRect(this.x, this.y, this.size, this.size);
-        } else {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        ctx.globalAlpha = 1.0;
-    }
-}
+    // Water
+    waterList: document.getElementById('waterList'),
+    addWaterBtn: document.getElementById('addWaterBtn'),
+    waterActivity: document.getElementById('waterActivity'),
+    waterQuantity: document.getElementById('waterQuantity'),
+    totalGallons: document.getElementById('totalGallons'),
+    recGreyTank: document.getElementById('recGreyTank')
+};
 
-function spawnParticles(x, y, color, count, type) {
-    for(let i=0; i<count; i++) {
-        particles.push(new Particle(x, y, color, type));
-    }
-}
+let chartInstance = null;
 
-function drawScenery() {
-    const currentState = STATES[state.currentStateId];
+// --- Initialization ---
+function init() {
+    setupNavigation();
+    setupBudget();
+    setupWeight();
+    setupSolar();
+    setupInsulation();
+    setupWater();
+    updateDashboard();
     
-    // Sky
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, "#4fc3f7");
-    gradient.addColorStop(1, "#e1f5fe");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Ground
-    ctx.fillStyle = currentState.bg;
-    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-    
-    // Simple Mountains/Hills based on state
-    ctx.fillStyle = "rgba(0,0,0,0.1)";
-    ctx.beginPath();
-    if (state.currentStateId === 3) { // Colorado
-        ctx.moveTo(0, canvas.height - 100);
-        ctx.lineTo(100, canvas.height - 300);
-        ctx.lineTo(300, canvas.height - 100);
-        ctx.lineTo(500, canvas.height - 400);
-        ctx.lineTo(800, canvas.height - 100);
-    } else {
-        ctx.moveTo(0, canvas.height - 100);
-        ctx.quadraticCurveTo(canvas.width/2, canvas.height - 150, canvas.width, canvas.height - 100);
-    }
-    ctx.fill();
+    // Load saved inputs
+    els.trailerGvwr.value = state.weight.trailerGvwr;
+    els.trailerWeight.value = state.weight.trailerWeight;
+
+    // Setup Export
+    els.exportPdfBtn.onclick = generatePDF;
 }
 
-function drawHouse() {
-    const bp = BLUEPRINTS[state.currentBlueprintId];
-    const groundY = canvas.height - 100;
-    const centerX = canvas.width / 2;
+function saveData() {
+    localStorage.setItem('thn_companion_data', JSON.stringify(state));
+    updateDashboard();
     
-    // Shadow
-    ctx.fillStyle = "rgba(0,0,0,0.2)";
-    ctx.beginPath();
-    ctx.ellipse(centerX, groundY, bp.width/1.8, 10, 0, 0, Math.PI*2);
-    ctx.fill();
-    
-    if (!state.isBuilding && state.buildProgress === 0) {
-        // Ghost/Blueprint mode
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-        ctx.setLineDash([5, 5]);
-        ctx.lineWidth = 2;
-        ctx.strokeRect(centerX - bp.width/2, groundY - bp.height, bp.width, bp.height);
-        ctx.setLineDash([]);
-        return;
-    }
-    
-    const progress = state.buildProgress / 100;
-    const currentHeight = bp.height * progress;
-    
-    // House Body
-    ctx.fillStyle = bp.color;
-    ctx.fillRect(centerX - bp.width/2, groundY - currentHeight, bp.width, currentHeight);
-    
-    // Framing details (visual polish)
-    if (progress < 1.0) {
-        ctx.strokeStyle = "#ecf0f1";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(centerX - bp.width/2, groundY - currentHeight, bp.width, currentHeight);
-    }
-    
-    // Roof (only appears near end)
-    if (progress > 0.8) {
-        ctx.fillStyle = bp.roofColor;
-        ctx.beginPath();
-        if (bp.isAFrame) {
-            ctx.moveTo(centerX - bp.width/2 - 20, groundY);
-            ctx.lineTo(centerX, groundY - bp.height - 40);
-            ctx.lineTo(centerX + bp.width/2 + 20, groundY);
-        } else {
-            ctx.moveTo(centerX - bp.width/2 - 10, groundY - bp.height);
-            ctx.lineTo(centerX + bp.width/2 + 10, groundY - bp.height);
-            ctx.lineTo(centerX, groundY - bp.height - 40);
-        }
-        ctx.fill();
-    }
-    
-    // Windows/Door (only at very end)
-    if (progress >= 0.95) {
-        // Door
-        ctx.fillStyle = "#34495e";
-        ctx.fillRect(centerX - 15, groundY - 50, 30, 50);
-        // Window
-        ctx.fillStyle = "#81d4fa";
-        ctx.fillRect(centerX - bp.width/3, groundY - 60, 30, 30);
-        ctx.fillRect(centerX + bp.width/3 - 30, groundY - 60, 30, 30);
-    }
+    // Flash save status
+    const status = document.getElementById('saveStatus');
+    status.style.opacity = '1';
+    setTimeout(() => status.style.opacity = '0.7', 500);
 }
 
-function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawScenery();
-    drawHouse();
-    
-    // Particles
-    for (let i = particles.length - 1; i >= 0; i--) {
-        particles[i].update();
-        particles[i].draw(ctx);
-        if (particles[i].life <= 0) particles.splice(i, 1);
-    }
-    
-    requestAnimationFrame(render);
-}
-
-// --- Game Logic ---
-
-function updateUI() {
-    document.getElementById('wood').textContent = Math.floor(state.wood);
-    document.getElementById('metal').textContent = Math.floor(state.metal);
-    document.getElementById('money').textContent = Math.floor(state.money);
-    document.getElementById('reputation').textContent = state.reputation;
-    document.getElementById('population').textContent = state.population;
-    
-    document.getElementById('wood-rate').textContent = `+${state.woodRate}`;
-    document.getElementById('metal-rate').textContent = `+${state.metalRate}`;
-    
-    // Build Button State
-    const bp = BLUEPRINTS[state.currentBlueprintId];
-    const btn = document.getElementById('buildBtn');
-    const costLabel = document.getElementById('build-cost');
-    const canAfford = state.wood >= bp.cost.wood && state.metal >= bp.cost.metal;
-    
-    let costText = `${bp.cost.wood} Wood`;
-    if (bp.cost.metal > 0) costText += `, ${bp.cost.metal} Metal`;
-    costLabel.textContent = costText;
-    
-    if (state.isBuilding) {
-        btn.classList.remove('disabled');
-        btn.querySelector('.label').textContent = "Building...";
-        document.getElementById('build-progress').style.width = `${state.buildProgress}%`;
-    } else {
-        document.getElementById('build-progress').style.width = '0%';
-        btn.querySelector('.label').textContent = "Build House";
-        if (canAfford) {
-            btn.classList.remove('disabled');
-        } else {
-            btn.classList.add('disabled');
-        }
-    }
-    
-    renderCards();
-}
-
-function renderCards() {
-    // Blueprints
-    const bpList = document.getElementById('blueprint-list');
-    if (bpList.children.length === 0) {
-        BLUEPRINTS.forEach((bp, idx) => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.onclick = () => selectBlueprint(idx);
-            div.innerHTML = `
-                <div class="card-info">
-                    <h3>${bp.name}</h3>
-                    <p>${bp.desc}</p>
-                    <div class="card-stats">Reward: $${bp.reward} | Rep: +${bp.reputation}</div>
-                </div>
-                <div class="card-cost">
-                    <span class="cost-item">${bp.cost.wood} Wood</span>
-                    ${bp.cost.metal > 0 ? `<span class="cost-item">${bp.cost.metal} Metal</span>` : ''}
-                </div>
-            `;
-            bpList.appendChild(div);
-        });
-    }
-    
-    // Update Blueprint States
-    Array.from(bpList.children).forEach((card, idx) => {
-        const bp = BLUEPRINTS[idx];
-        if (state.reputation < bp.reqRep) {
-            card.classList.add('disabled');
-            card.querySelector('.card-stats').textContent = `Requires ${bp.reqRep} Reputation`;
-        } else {
-            card.classList.remove('disabled');
-        }
-        
-        if (state.currentBlueprintId === idx) {
-            card.classList.add('active-blueprint');
-        } else {
-            card.classList.remove('active-blueprint');
-        }
-    });
-
-    // Upgrades
-    const upList = document.getElementById('upgrade-list');
-    // Simple redraw for upgrades to handle state changes easily
-    upList.innerHTML = '';
-    UPGRADES.forEach((u, idx) => {
-        if (!u.trigger(state) && !state.upgradesBought.includes(idx)) return;
-        
-        const div = document.createElement('div');
-        div.className = 'card';
-        if (state.upgradesBought.includes(idx)) {
-            div.classList.add('disabled');
-            div.innerHTML = `<div class="card-info"><h3>${u.name}</h3><p>PURCHASED</p></div>`;
-        } else {
-            div.onclick = () => buyUpgrade(idx);
-            if (state.money < u.cost.money) div.classList.add('disabled');
+// --- Navigation ---
+function setupNavigation() {
+    els.navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update Buttons
+            els.navBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             
-            div.innerHTML = `
-                <div class="card-info">
-                    <h3>${u.name}</h3>
-                    <p>${u.desc}</p>
-                </div>
-                <div class="card-cost">$${u.cost.money}</div>
-            `;
-        }
-        upList.appendChild(div);
+            // Update Views
+            els.views.forEach(v => v.classList.remove('active'));
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            
+            if (btn.dataset.tab === 'dashboard') {
+                updateDashboard();
+            }
+        });
+    });
+}
+
+// --- Dashboard Logic ---
+function updateDashboard() {
+    // Calculate Totals
+    const totalCost = state.budget.reduce((sum, item) => sum + item.cost, 0);
+    const totalWeight = state.weight.items.reduce((sum, item) => sum + item.weight, 0) + state.weight.trailerWeight;
+    const totalEnergy = state.solar.reduce((sum, item) => sum + (item.watts * item.hours), 0);
+    
+    // Update Text
+    els.dashCost.textContent = formatMoney(totalCost);
+    els.dashWeight.textContent = `${totalWeight.toLocaleString()} lbs`;
+    els.dashEnergy.textContent = `${totalEnergy.toLocaleString()} Wh`;
+    
+    // Update Chart
+    updateChart();
+}
+
+function updateChart() {
+    const categories = {};
+    state.budget.forEach(item => {
+        categories[item.category] = (categories[item.category] || 0) + item.cost;
     });
     
-    // States
-    const stList = document.getElementById('state-list');
-    stList.innerHTML = '';
-    STATES.forEach((s, idx) => {
-        const div = document.createElement('div');
-        div.className = 'card';
+    const data = {
+        labels: Object.keys(categories),
+        datasets: [{
+            data: Object.values(categories),
+            backgroundColor: [
+                '#3498db', '#e74c3c', '#f1c40f', '#2ecc71', '#9b59b6', 
+                '#34495e', '#1abc9c', '#e67e22', '#95a5a6', '#d35400'
+            ]
+        }]
+    };
+    
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+    
+    chartInstance = new Chart(els.chartCanvas, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+}
+
+// --- Budget Logic ---
+function setupBudget() {
+    renderBudgetTable();
+    
+    els.addBudgetBtn.onclick = () => els.budgetModal.style.display = 'block';
+    els.closeModal.onclick = () => els.budgetModal.style.display = 'none';
+    window.onclick = (e) => {
+        if (e.target == els.budgetModal) els.budgetModal.style.display = 'none';
+    };
+    
+    els.budgetForm.onsubmit = (e) => {
+        e.preventDefault();
+        const name = document.getElementById('budgetName').value;
+        const category = document.getElementById('budgetCategory').value;
+        const cost = parseFloat(document.getElementById('budgetCost').value);
         
-        if (state.currentStateId === idx) {
-            div.classList.add('active-blueprint'); // Reuse style
-            div.innerHTML = `<div class="card-info"><h3>${s.name}</h3><p>Current Location</p></div>`;
-        } else if (state.money < s.cost) {
-            div.classList.add('disabled');
-            div.innerHTML = `
-                <div class="card-info"><h3>${s.name}</h3><p>${s.desc}</p></div>
-                <div class="card-cost">$${s.cost.toLocaleString()}</div>
-            `;
-        } else {
-            div.onclick = () => travelToState(idx);
-            div.innerHTML = `
-                <div class="card-info"><h3>${s.name}</h3><p>${s.desc}</p></div>
-                <div class="card-cost">$${s.cost.toLocaleString()}</div>
-            `;
-        }
-        stList.appendChild(div);
+        state.budget.push({ id: Date.now(), name, category, cost });
+        saveData();
+        renderBudgetTable();
+        
+        els.budgetForm.reset();
+        els.budgetModal.style.display = 'none';
+    };
+}
+
+function renderBudgetTable() {
+    els.budgetTable.innerHTML = '';
+    let total = 0;
+    
+    state.budget.forEach(item => {
+        total += item.cost;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.name}</td>
+            <td><span class="badge">${item.category}</span></td>
+            <td>${formatMoney(item.cost)}</td>
+            <td><button class="btn-delete" onclick="deleteBudget(${item.id})"><i class="fas fa-trash"></i></button></td>
+        `;
+        els.budgetTable.appendChild(tr);
     });
+    
+    els.budgetTotal.textContent = formatMoney(total);
 }
 
-// --- Actions ---
+window.deleteBudget = (id) => {
+    state.budget = state.budget.filter(i => i.id !== id);
+    saveData();
+    renderBudgetTable();
+};
 
-function showFloatText(text, x, y, color) {
-    const container = document.getElementById('floating-text-container');
-    const el = document.createElement('div');
-    el.className = 'float-text';
-    el.textContent = text;
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    el.style.color = color;
-    container.appendChild(el);
-    setTimeout(() => el.remove(), 1000);
-}
-
-function gatherWood(e) {
-    state.wood += state.woodRate;
-    spawnParticles(e.clientX, e.clientY, '#d35400', 5, 'wood');
-    showFloatText(`+${state.woodRate}`, e.clientX, e.clientY - 50, '#d35400');
-    updateUI();
-}
-
-function gatherMetal(e) {
-    state.metal += state.metalRate;
-    state.totalMetalGathered += state.metalRate;
-    spawnParticles(e.clientX, e.clientY, '#7f8c8d', 5, 'metal');
-    showFloatText(`+${state.metalRate}`, e.clientX, e.clientY - 50, '#7f8c8d');
-    updateUI();
-}
-
-function startBuilding() {
-    const bp = BLUEPRINTS[state.currentBlueprintId];
-    if (state.isBuilding) {
-        // Click to speed up
-        state.buildProgress += state.buildPower;
-        spawnParticles(canvas.width/2, canvas.height/2, '#f1c40f', 2, 'spark');
-    } else {
-        // Start construction
-        if (state.wood >= bp.cost.wood && state.metal >= bp.cost.metal) {
-            state.wood -= bp.cost.wood;
-            state.metal -= bp.cost.metal;
-            state.isBuilding = true;
-            state.buildProgress = 0;
+// --- Weight Logic ---
+function setupWeight() {
+    renderWeightList();
+    
+    const updateTrailerStats = () => {
+        state.weight.trailerGvwr = parseFloat(els.trailerGvwr.value) || 0;
+        state.weight.trailerWeight = parseFloat(els.trailerWeight.value) || 0;
+        saveData();
+        renderWeightList(); // Re-render to update meter
+    };
+    
+    els.trailerGvwr.onchange = updateTrailerStats;
+    els.trailerWeight.onchange = updateTrailerStats;
+    
+    els.addWeightBtn.onclick = () => {
+        const name = els.weightItemName.value;
+        const weight = parseFloat(els.weightItemLbs.value);
+        
+        if (name && weight) {
+            state.weight.items.push({ id: Date.now(), name, weight });
+            saveData();
+            renderWeightList();
+            els.weightItemName.value = '';
+            els.weightItemLbs.value = '';
         }
-    }
+    };
+}
+
+function renderWeightList() {
+    els.weightList.innerHTML = '';
+    let itemsWeight = 0;
     
-    if (state.buildProgress >= 100) {
-        finishHouse();
-    }
-    updateUI();
-}
-
-function finishHouse() {
-    const bp = BLUEPRINTS[state.currentBlueprintId];
-    state.isBuilding = false;
-    state.buildProgress = 0;
-    state.housesBuilt++;
-    state.population++;
-    state.money += bp.reward;
-    state.reputation += bp.reputation;
-    
-    spawnParticles(canvas.width/2, canvas.height/2, ['#e74c3c', '#3498db', '#f1c40f'][Math.floor(Math.random()*3)], 50, 'confetti');
-    document.getElementById('message-log').textContent = `Built ${bp.name}! Earned $${bp.reward}`;
-    
-    updateUI();
-}
-
-function selectBlueprint(idx) {
-    if (state.reputation >= BLUEPRINTS[idx].reqRep) {
-        state.currentBlueprintId = idx;
-        updateUI();
-    }
-}
-
-function buyUpgrade(idx) {
-    const u = UPGRADES[idx];
-    if (state.money >= u.cost.money) {
-        state.money -= u.cost.money;
-        state.upgradesBought.push(idx);
-        u.effect(state);
-        updateUI();
-    }
-}
-
-function travelToState(idx) {
-    const s = STATES[idx];
-    if (state.money >= s.cost) {
-        state.money -= s.cost;
-        state.currentStateId = idx;
-        updateUI();
-    }
-}
-
-// --- Event Listeners ---
-
-document.getElementById('gatherWoodBtn').addEventListener('mousedown', gatherWood);
-document.getElementById('gatherMetalBtn').addEventListener('mousedown', gatherMetal);
-document.getElementById('buildBtn').addEventListener('mousedown', startBuilding);
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
+    state.weight.items.forEach(item => {
+        itemsWeight += item.weight;
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${item.name}</span>
+            <span>${item.weight} lbs <button class="btn-delete" onclick="deleteWeight(${item.id})"><i class="fas fa-times"></i></button></span>
+        `;
+        els.weightList.appendChild(li);
     });
-});
-
-// --- Game Loop ---
-
-setInterval(() => {
-    // Auto gather logic
-    if (state.autoWood > 0) {
-        state.wood += state.autoWood;
-        updateUI();
+    
+    // Update Meter
+    const totalWeight = itemsWeight + state.weight.trailerWeight;
+    const gvwr = state.weight.trailerGvwr;
+    const percentage = Math.min(100, (totalWeight / gvwr) * 100);
+    
+    els.payloadDisplay.textContent = `${totalWeight.toLocaleString()} / ${gvwr.toLocaleString()} lbs`;
+    els.weightFill.style.width = `${percentage}%`;
+    
+    els.weightFill.className = 'meter-fill';
+    els.weightWarning.textContent = '';
+    
+    if (percentage > 100) {
+        els.weightFill.classList.add('danger');
+        els.weightWarning.textContent = 'OVERWEIGHT! Exceeds Trailer GVWR.';
+    } else if (percentage > 85) {
+        els.weightFill.classList.add('warning');
+        els.weightWarning.textContent = 'Warning: Approaching weight limit.';
     }
-    if (state.autoMetal > 0) {
-        state.metal += state.autoMetal;
-        updateUI();
-    }
-    if (state.autoBuild > 0 && state.isBuilding) {
-        state.buildProgress += state.autoBuild;
-        if (state.buildProgress >= 100) finishHouse();
-        updateUI();
-    }
-}, 1000);
+}
 
-// Start
-window.addEventListener('load', () => {
-    console.log("Game Starting...");
-    resizeCanvas();
-    render();
-    updateUI();
-});
+window.deleteWeight = (id) => {
+    state.weight.items = state.weight.items.filter(i => i.id !== id);
+    saveData();
+    renderWeightList();
+};
+
+// --- Solar Logic ---
+function setupSolar() {
+    renderSolarList();
+    
+    els.addSolarBtn.onclick = () => {
+        const name = els.solarAppliance.value;
+        const watts = parseFloat(els.solarWatts.value);
+        const hours = parseFloat(els.solarHours.value);
+        
+        if (name && watts && hours) {
+            state.solar.push({ id: Date.now(), name, watts, hours });
+            saveData();
+            renderSolarList();
+            els.solarAppliance.value = '';
+            els.solarWatts.value = '';
+            els.solarHours.value = '';
+        }
+    };
+}
+
+function renderSolarList() {
+    els.solarList.innerHTML = '';
+    let totalWh = 0;
+    
+    state.solar.forEach(item => {
+        const dailyWh = item.watts * item.hours;
+        totalWh += dailyWh;
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${item.name} (${item.watts}W x ${item.hours}h)</span>
+            <span>${dailyWh} Wh <button class="btn-delete" onclick="deleteSolar(${item.id})"><i class="fas fa-times"></i></button></span>
+        `;
+        els.solarList.appendChild(li);
+    });
+    
+    // Calculations
+    // 1. Panels: Total Wh / 5 sun hours / 0.8 efficiency
+    const reqSolar = Math.ceil(totalWh / 5 / 0.8);
+    
+    // 2. Battery: Total Wh / 12V / 0.5 DOD (Depth of Discharge)
+    const reqBattery = Math.ceil(totalWh / 12 / 0.5);
+    
+    els.totalWh.textContent = `${totalWh.toLocaleString()} Wh`;
+    els.recPanels.textContent = `${reqSolar} W`;
+    els.recBattery.textContent = `${reqBattery} Ah`;
+}
+
+window.deleteSolar = (id) => {
+    state.solar = state.solar.filter(i => i.id !== id);
+    saveData();
+    renderSolarList();
+};
+
+// --- Insulation Logic ---
+function setupInsulation() {
+    renderLayerList();
+
+    els.addLayerBtn.onclick = () => {
+        const rPerInch = parseFloat(els.insulMaterial.value);
+        const thickness = parseFloat(els.insulThickness.value);
+        const materialName = els.insulMaterial.options[els.insulMaterial.selectedIndex].text.split('(')[0].trim();
+
+        if (thickness > 0) {
+            state.insulation.push({ id: Date.now(), name: materialName, rPerInch, thickness });
+            saveData();
+            renderLayerList();
+            els.insulThickness.value = '';
+        }
+    };
+}
+
+function renderLayerList() {
+    els.layerList.innerHTML = '';
+    let totalR = 0;
+    let totalThick = 0;
+
+    state.insulation.forEach(item => {
+        const itemR = item.rPerInch * item.thickness;
+        totalR += itemR;
+        totalThick += item.thickness;
+
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${item.name} (${item.thickness}")</span>
+            <span>R-${itemR.toFixed(1)} <button class="btn-delete" onclick="deleteLayer(${item.id})"><i class="fas fa-times"></i></button></span>
+        `;
+        els.layerList.appendChild(li);
+    });
+
+    els.totalRValue.textContent = `R-${totalR.toFixed(1)}`;
+    els.totalThickness.textContent = `${totalThick.toFixed(1)}"`;
+}
+
+window.deleteLayer = (id) => {
+    state.insulation = state.insulation.filter(i => i.id !== id);
+    saveData();
+    renderLayerList();
+};
+
+// --- Water Logic ---
+function setupWater() {
+    renderWaterList();
+
+    els.addWaterBtn.onclick = () => {
+        const factor = parseFloat(els.waterActivity.value);
+        const quantity = parseFloat(els.waterQuantity.value);
+        const activityName = els.waterActivity.options[els.waterActivity.selectedIndex].text.split('(')[0].trim();
+
+        if (quantity > 0) {
+            state.water.push({ id: Date.now(), name: activityName, factor, quantity });
+            saveData();
+            renderWaterList();
+            els.waterQuantity.value = '';
+        }
+    };
+}
+
+function renderWaterList() {
+    els.waterList.innerHTML = '';
+    let totalGal = 0;
+
+    state.water.forEach(item => {
+        const itemGal = item.factor * item.quantity;
+        totalGal += itemGal;
+
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${item.name} (x${item.quantity})</span>
+            <span>${itemGal.toFixed(1)} Gal <button class="btn-delete" onclick="deleteWater(${item.id})"><i class="fas fa-times"></i></button></span>
+        `;
+        els.waterList.appendChild(li);
+    });
+
+    els.totalGallons.textContent = `${totalGal.toFixed(1)} Gal`;
+    // Recommend grey tank size: 3 days of storage (excluding toilet if compost, but here we assume simple grey water calc)
+    // Note: Toilet water usually goes to black tank or compost. 
+    // For simplicity, we'll just show 3x daily usage as a safe buffer for a combined or grey tank.
+    els.recGreyTank.textContent = `${(totalGal * 3).toFixed(0)} Gal`;
+}
+
+window.deleteWater = (id) => {
+    state.water = state.water.filter(i => i.id !== id);
+    saveData();
+    renderWaterList();
+};
+
+// Helper
+function formatMoney(amount) {
+   --- PDF Generation ---
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(44, 62, 80);
+    doc.text("Tiny House Build Report", 14, 22);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    let yPos = 40;
+
+    // 1. Summary
+    doc.setFontSize(14);
+    doc.setTextColor(44, 62, 80);
+    doc.text("1. Project Summary", 14, yPos);
+    yPos += 10;
+
+    const totalCost = state.budget.reduce((sum, item) => sum + item.cost, 0);
+    const totalWeight = state.weight.items.reduce((sum, item) => sum + item.weight, 0) + state.weight.trailerWeight;
+    const totalEnergy = state.solar.reduce((sum, item) => sum + (item.watts * item.hours), 0);
+
+    const summaryData = [
+        ['Total Estimated Cost', formatMoney(totalCost)],
+        ['Total Estimated Weight', `${totalWeight.toLocaleString()} lbs`],
+        ['Daily Energy Needs', `${totalEnergy.toLocaleString()} Wh`]
+    ];
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['Metric', 'Value']],
+        body: summaryData,
+        theme: 'striped',
+        headStyles: { fillColor: [44, 62, 80] }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 15;
+
+    // 2. Budget Breakdown
+    doc.text("2. Budget Breakdown", 14, yPos);
+    yPos += 5;
+    
+    const budgetRows = state.budget.map(item => [item.name, item.category, formatMoney(item.cost)]);
+    
+    doc.autoTable({
+        startY: yPos,
+        head: [['Item', 'Category', 'Cost']],
+        body: budgetRows,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219] }
+    });
+
+    yPos = doc.lastAutoTable.finalY + 15;
+
+    // 3. Weight Breakdown
+    // Check if we need a new page
+    if (yPos > 250) { doc.addPage(); yPos = 20; }
+    
+    doc.text("3. Weight Breakdown", 14, yPos);
+    yPos += 5;
+
+    const weightRows = state.weight.items.map(item => [item.name, `${item.weight} lbs`]);
+    // Add trailer base weight
+    weightRows.unshift(['Trailer Base Weight', `${state.weight.trailerWeight} lbs`]);
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['Item', 'Weight']],
+        body: weightRows,
+        theme: 'grid',
+        headStyles: { fillColor: [230, 126, 34] },
+        foot: [['Total Weight', `${totalWeight.toLocaleString()} lbs`]]
+    });
+
+    yPos = doc.lastAutoTable.finalY + 15;
+
+    // 4. Solar System
+    if (yPos > 250) { doc.addPage(); yPos = 20; }
+
+    doc.text("4. Solar System Sizing", 14, yPos);
+    yPos += 5;
+
+    const solarRows = state.solar.map(item => [item.name, `${item.watts} W`, `${item.hours} h`, `${item.watts * item.hours} Wh`]);
+    const reqSolar = Math.ceil(totalEnergy / 5 / 0.8);
+    const reqBattery = Math.ceil(totalEnergy / 12 / 0.5);
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['Appliance', 'Watts', 'Hours', 'Daily Wh']],
+        body: solarRows,
+        theme: 'grid',
+        headStyles: { fillColor: [241, 196, 15] },
+        foot: [['Total Daily Energy', '', '', `${totalEnergy.toLocaleString()} Wh`]]
+    });
+
+    yPos = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(10);
+    doc.text(`Recommended Solar Array: ${reqSolar} Watts`, 14, yPos);
+    doc.text(`Recommended Battery Bank: ${reqBattery} Ah (@ 12V)`, 14, yPos + 5);
+    
+    // Save
+    doc.save('tiny-house-plan.pdf');
+}
+
+//  return '$' + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Run
+init();
