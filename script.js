@@ -1037,11 +1037,23 @@ function generatePDF() {
     const totalCost = state.budget.reduce((sum, item) => sum + item.cost, 0);
     const totalWeight = state.weight.items.reduce((sum, item) => sum + item.weight, 0) + state.weight.trailerWeight;
     const totalEnergy = state.solar.reduce((sum, item) => sum + (item.watts * item.hours), 0);
+    
+    // Checklist Stats
+    let totalTasks = 0;
+    let completedTasks = 0;
+    if (state.checklist) {
+        buildPhases.forEach(phase => {
+            totalTasks += phase.tasks.length;
+            completedTasks += phase.tasks.filter(t => state.checklist.includes(t.id)).length;
+        });
+    }
+    const buildProgress = totalTasks === 0 ? "0%" : `${Math.round((completedTasks / totalTasks) * 100)}%`;
 
     const summaryData = [
         ['Total Estimated Cost', formatMoney(totalCost)],
         ['Total Estimated Weight', `${totalWeight.toLocaleString()} lbs`],
-        ['Daily Energy Needs', `${totalEnergy.toLocaleString()} Wh`]
+        ['Daily Energy Needs', `${totalEnergy.toLocaleString()} Wh`],
+        ['Build Progress', buildProgress]
     ];
 
     doc.autoTable({
@@ -1054,8 +1066,30 @@ function generatePDF() {
     
     yPos = doc.lastAutoTable.finalY + 15;
 
-    // 2. Budget Breakdown
-    doc.text("2. Budget Breakdown", 14, yPos);
+    // 2. Build Checklist
+    doc.text("2. Build Checklist Status", 14, yPos);
+    yPos += 5;
+
+    const checklistRows = [];
+    buildPhases.forEach(phase => {
+        const phaseTotal = phase.tasks.length;
+        const phaseDone = phase.tasks.filter(t => state.checklist.includes(t.id)).length;
+        checklistRows.push([phase.title, `${phaseDone}/${phaseTotal} Tasks Completed`]);
+    });
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['Phase', 'Status']],
+        body: checklistRows,
+        theme: 'grid',
+        headStyles: { fillColor: [92, 148, 110] }
+    });
+
+    yPos = doc.lastAutoTable.finalY + 15;
+
+    // 3. Budget Breakdown
+    if (yPos > 250) { doc.addPage(); yPos = 20; }
+    doc.text("3. Budget Breakdown", 14, yPos);
     yPos += 5;
     
     const budgetRows = state.budget.map(item => [item.name, item.category, formatMoney(item.cost)]);
@@ -1070,10 +1104,10 @@ function generatePDF() {
 
     yPos = doc.lastAutoTable.finalY + 15;
 
-    // 3. Weight Breakdown
+    // 4. Weight Breakdown
     if (yPos > 250) { doc.addPage(); yPos = 20; }
     
-    doc.text("3. Weight Breakdown", 14, yPos);
+    doc.text("4. Weight Breakdown", 14, yPos);
     yPos += 5;
 
     const weightRows = state.weight.items.map(item => [item.name, `${item.weight} lbs`]);
@@ -1090,10 +1124,35 @@ function generatePDF() {
 
     yPos = doc.lastAutoTable.finalY + 15;
 
-    // 4. Solar System
+    // 5. Floor Plan Inventory
+    if (yPos > 250) { doc.addPage(); yPos = 20; }
+    doc.text("5. Floor Plan Inventory", 14, yPos);
+    yPos += 5;
+
+    const furnitureCounts = {};
+    if (state.floorplan && state.floorplan.items) {
+        state.floorplan.items.forEach(item => {
+            furnitureCounts[item.text] = (furnitureCounts[item.text] || 0) + 1;
+        });
+    }
+    
+    const floorplanRows = Object.keys(furnitureCounts).map(key => [key, furnitureCounts[key]]);
+    floorplanRows.unshift(['Trailer Length', `${state.floorplan ? state.floorplan.length : 24} ft`]);
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['Item', 'Count/Size']],
+        body: floorplanRows,
+        theme: 'grid',
+        headStyles: { fillColor: [108, 92, 231] }
+    });
+
+    yPos = doc.lastAutoTable.finalY + 15;
+
+    // 6. Solar System
     if (yPos > 250) { doc.addPage(); yPos = 20; }
 
-    doc.text("4. Solar System Sizing", 14, yPos);
+    doc.text("6. Solar System Sizing", 14, yPos);
     yPos += 5;
 
     const solarRows = state.solar.map(item => [item.name, `${item.watts} W`, `${item.hours} h`, `${item.watts * item.hours} Wh`]);
@@ -1115,10 +1174,10 @@ function generatePDF() {
     doc.text(`Recommended Battery Bank: ${reqBattery} Ah (@ 12V)`, 14, yPos + 5);
     yPos += 15;
 
-    // 5. Insulation
+    // 7. Insulation
     if (yPos > 250) { doc.addPage(); yPos = 20; }
     doc.setFontSize(14);
-    doc.text("5. Insulation Strategy", 14, yPos);
+    doc.text("7. Insulation Strategy", 14, yPos);
     yPos += 5;
 
     let totalR = 0;
@@ -1139,9 +1198,9 @@ function generatePDF() {
     
     yPos = doc.lastAutoTable.finalY + 15;
 
-    // 6. Water Usage
+    // 8. Water Usage
     if (yPos > 250) { doc.addPage(); yPos = 20; }
-    doc.text("6. Water Usage Estimation", 14, yPos);
+    doc.text("8. Water Usage Estimation", 14, yPos);
     yPos += 5;
 
     let totalGal = 0;
