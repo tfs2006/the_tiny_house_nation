@@ -30,11 +30,11 @@ Acceptance: /states index and detail pages generated for all states in states.js
 - [x] Acceptance: Consistent metadata across key pages; no broken links; Lighthouse baseline improvements where easy
 
 ## PHASE 6 — Release readiness checklist
-- [ ] Add a RELEASE_CHECKLIST.md with:
+- [x] Add a RELEASE_CHECKLIST.md with:
   - verify sitemap/robots
   - verify build/deploy workflow
   - verify affiliate disclosures
   - verify internal linking
   - verify 404 handling (GitHub Pages)
   - verify Search Console readiness notes
-- [ ] Acceptance: Document exists and is actionable
+- [x] Acceptance: Document exists and is actionable

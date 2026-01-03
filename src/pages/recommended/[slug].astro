@@ -13,13 +13,13 @@ import AffiliateLink from '../../components/AffiliateLink.astro';
 const { slug } = Astro.props;
 const product = products.find(p => p.slug === slug);
 if (!product) throw new Error('Product not found');
-const canonical = `https://tfs2006.github.io/the_tiny_house_nation/recommended/${slug}/`;
+const canonical = `https://thetinyhousenation.com/recommended/${slug}/`;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: product.name,
   description: product.shortDescription,
-  image: product.image ? `https://tfs2006.github.io${product.image}` : undefined,
+  image: product.image ? `https://thetinyhousenation.com${product.image}` : undefined,
   offers: {
     '@type': 'Offer',
     url: product.affiliateUrl,

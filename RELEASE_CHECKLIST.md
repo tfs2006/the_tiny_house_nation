@@ -3,26 +3,26 @@
 Use this checklist before publishing or updating the site to ensure everything is production-ready and compliant.
 
 ## 1. Sitemap & Robots.txt
-- [ ] Confirm `dist/sitemap-index.xml` is present and up to date
-- [ ] Confirm `public/robots.txt` references the correct sitemap URL
+- [x] Confirm `dist/sitemap-index.xml` is present and up to date
+- [x] Confirm `public/robots.txt` references the correct sitemap URL
 
 ## 2. Build & Deploy Workflow
-- [ ] Run `npm run build` and verify all pages are generated without errors
-- [ ] Confirm GitHub Actions workflow is present and deploys to GitHub Pages
-- [ ] Confirm `dist/` output matches expected site structure
+- [x] Run `npm run build` and verify all pages are generated without errors
+- [x] Confirm GitHub Actions workflow is present and deploys to GitHub Pages
+- [x] Confirm `dist/` output matches expected site structure
 
 ## 3. Affiliate Disclosures
-- [ ] Affiliate disclosure page is present, prominent, and Amazon-compliant
-- [ ] Inline affiliate disclosures appear near all affiliate links
-- [ ] All affiliate links use rel="nofollow sponsored noopener noreferrer"
+- [x] Affiliate disclosure page is present, prominent, and Amazon-compliant
+- [x] Inline affiliate disclosures appear near all affiliate links
+- [x] All affiliate links use rel="nofollow sponsored noopener noreferrer"
 
 ## 4. Internal Linking
-- [ ] Navigation (header/footer) includes all key sections (Guides, States, Recommended, etc.)
-- [ ] All internal links work and point to correct URLs (including subpaths)
+- [x] Navigation (header/footer) includes all key sections (Guides, States, Recommended, etc.)
+- [x] All internal links work and point to correct URLs (including subpaths)
 - [ ] No broken links (use a link checker if possible)
 
 ## 5. 404 Handling (GitHub Pages)
-- [ ] Custom 404.html exists in `dist/` and is user-friendly
+- [x] Custom 404.html exists in `dist/` and is user-friendly
 - [ ] 404 page is linked from navigation or footer (optional but recommended)
 
 ## 6. Search Console & Analytics

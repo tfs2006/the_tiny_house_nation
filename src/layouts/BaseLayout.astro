@@ -2,12 +2,12 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SEO from '../components/SEO.astro';
+import '../styles/global.css';
 const { title, description, canonical } = Astro.props;
 ---
 <html lang="en">
   <head>
     <SEO {title} {description} {canonical} />
-    <link rel="stylesheet" href="/the_tiny_house_nation/src/styles/global.css" />
     <slot name="head" />
   </head>
   <body>

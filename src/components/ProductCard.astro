@@ -4,7 +4,7 @@ const { product } = Astro.props;
 ---
 <article style="border:1px solid #ddd;padding:1rem;max-width:300px;">
   {product?.image && <img src={product.image} alt={product.name} style="max-width:100%;height:auto;" />}
-  <h3><a href={`/the_tiny_house_nation/recommended/${product.slug}/`}>{product?.name ?? 'Product Name'}</a></h3>
+  <h3><a href={`/recommended/${product.slug}/`}>{product?.name ?? 'Product Name'}</a></h3>
   <p>{product?.shortDescription ?? 'Product description goes here.'}</p>
   <p><strong>Price:</strong> {product?.priceNote}</p>
   <AffiliateLink href={product.affiliateUrl} network={product.network} label={`Buy on ${product.network.charAt(0).toUpperCase() + product.network.slice(1)}`} />

@@ -7,7 +7,7 @@
     "priceNote": "$199+ (varies)",
     "affiliateUrl": "https://www.amazon.com/example-solar-kit",
     "network": "amazon",
-    "image": "/the_tiny_house_nation/images/solar-kit.jpg",
+    "image": "/images/solar-kit.jpg",
     "pros": ["Easy to install", "All-in-one package"],
     "cons": ["Limited power for large appliances"]
   },
@@ -19,7 +19,7 @@
     "priceNote": "$349+",
     "affiliateUrl": "https://www.amazon.com/example-solar-pro-kit",
     "network": "amazon",
-    "image": "/the_tiny_house_nation/images/solar-pro-kit.jpg",
+    "image": "/images/solar-pro-kit.jpg",
     "pros": ["Higher output", "Expandable"],
     "cons": ["Heavier"]
   },
@@ -31,7 +31,7 @@
     "priceNote": "$299+",
     "affiliateUrl": "https://www.amazon.com/example-solar-flex-kit",
     "network": "amazon",
-    "image": "/the_tiny_house_nation/images/solar-flex-kit.jpg",
+    "image": "/images/solar-flex-kit.jpg",
     "pros": ["Flexible", "Lightweight"],
     "cons": ["Lower efficiency"]
   },
@@ -43,7 +43,7 @@
     "priceNote": "$899+",
     "affiliateUrl": "https://www.awin.com/example-composting-toilet",
     "network": "awin",
-    "image": "/the_tiny_house_nation/images/composting-toilet.jpg",
+    "image": "/images/composting-toilet.jpg",
     "pros": ["No plumbing required", "Eco-friendly"],
     "cons": ["Needs regular emptying"]
   },
@@ -55,7 +55,7 @@
     "priceNote": "$320+",
     "affiliateUrl": "https://www.amazon.com/example-insulation-kit",
     "network": "amazon",
-    "image": "/the_tiny_house_nation/images/insulation-kit.jpg",
+    "image": "/images/insulation-kit.jpg",
     "pros": ["High R-value", "Quick application"],
     "cons": ["Protective gear required"]
   },
@@ -67,7 +67,7 @@
     "priceNote": "$49+",
     "affiliateUrl": "https://www.clickbank.com/example-water-filter",
     "network": "clickbank",
-    "image": "/the_tiny_house_nation/images/water-filter.jpg",
+    "image": "/images/water-filter.jpg",
     "pros": ["Removes bacteria", "Lightweight"],
     "cons": ["Small capacity"]
   },
@@ -79,7 +79,7 @@
     "priceNote": "$129+",
     "affiliateUrl": "https://www.impact.com/example-toolkit",
     "network": "impact",
-    "image": "/the_tiny_house_nation/images/toolkit.jpg",
+    "image": "/images/toolkit.jpg",
     "pros": ["Comprehensive set", "Durable case"],
     "cons": ["Some tools may be redundant"]
   },
@@ -91,7 +91,7 @@
     "priceNote": "$59+",
     "affiliateUrl": "https://www.amazon.com/example-security-cam",
     "network": "amazon",
-    "image": "/the_tiny_house_nation/images/security-cam.jpg",
+    "image": "/images/security-cam.jpg",
     "pros": ["Night vision", "Mobile alerts"],
     "cons": ["Requires WiFi"]
   },
@@ -103,7 +103,7 @@
     "priceNote": "$299+",
     "affiliateUrl": "https://www.ebay.com/example-water-heater",
     "network": "ebay",
-    "image": "/the_tiny_house_nation/images/water-heater.jpg",
+    "image": "/images/water-heater.jpg",
     "pros": ["Compact size", "Energy efficient"],
     "cons": ["May require professional install"]
   },
@@ -115,7 +115,7 @@
     "priceNote": "$39+",
     "affiliateUrl": "https://www.jvzoo.com/example-door-lock",
     "network": "jvzoo",
-    "image": "/the_tiny_house_nation/images/door-lock.jpg",
+    "image": "/images/door-lock.jpg",
     "pros": ["Easy to install", "Strong security"],
     "cons": ["No smart features"]
   }

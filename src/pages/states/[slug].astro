@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const { state } = Astro.props;
 const stateName = state || slug;
-const canonical = `https://tfs2006.github.io/the_tiny_house_nation/states/${slug}/`;
+const canonical = `https://thetinyhousenation.com/states/${slug}/`;
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -32,5 +32,5 @@ const jsonLd = {
   </Fragment>
   <h1>{stateName} Tiny House Laws, Builders & Resources</h1>
   <p>Discover tiny house laws, top builders, and resources for <strong>{stateName}</strong>. (Content coming soon.)</p>
-  <a href="/the_tiny_house_nation/states/">← Back to all states</a>
+  <a href="/states/">← Back to all states</a>
 </BaseLayout>

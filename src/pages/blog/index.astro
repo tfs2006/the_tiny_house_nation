@@ -3,12 +3,12 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 const posts = (await getCollection('posts')).filter(post => !post.data.draft).sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 ---
-<BaseLayout title="Blog" description="Tiny house blog articles and guides." canonical="https://tfs2006.github.io/the_tiny_house_nation/blog/">
+<BaseLayout title="Blog" description="Tiny house blog articles and guides." canonical="https://thetinyhousenation.com/blog/">
   <h1>Blog</h1>
   <ul>
     {posts.map(post => (
       <li>
-        <a href={`/the_tiny_house_nation/blog/${post.slug}/`}>
+        <a href={`/blog/${post.slug}/`}>
           <strong>{post.data.title}</strong>
         </a>
         <div>{post.data.description}</div>
