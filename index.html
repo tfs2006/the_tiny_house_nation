@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiny House Nation: Builder Tycoon</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <div class="brand">
+                <i class="fas fa-home"></i>
+                <h1>Tiny House Nation</h1>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-group resources">
+                    <div class="stat" title="Wood">
+                        <i class="fas fa-tree"></i>
+                        <span id="wood" class="value">0</span>
+                    </div>
+                    <div class="stat" title="Metal">
+                        <i class="fas fa-cube"></i>
+                        <span id="metal" class="value">0</span>
+                    </div>
+                    <div class="stat" title="Funds">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span id="money" class="value">0</span>
+                    </div>
+                </div>
+                <div class="stat-group prestige">
+                    <div class="stat" title="Reputation">
+                        <i class="fas fa-star"></i>
+                        <span id="reputation" class="value">0</span>
+                    </div>
+                    <div class="stat" title="Population">
+                        <i class="fas fa-users"></i>
+                        <span id="population" class="value">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="left-panel">
+                <div class="scene-container">
+                    <canvas id="gameCanvas"></canvas>
+                    <div id="floating-text-container"></div>
+                </div>
+                
+                <div class="controls-area">
+                    <div class="action-buttons">
+                        <button id="gatherWoodBtn" class="action-btn wood-btn">
+                            <div class="icon"><i class="fas fa-tree"></i></div>
+                            <div class="label">Gather Wood</div>
+                            <div class="rate" id="wood-rate">+1</div>
+                        </button>
+                        
+                        <button id="gatherMetalBtn" class="action-btn metal-btn">
+                            <div class="icon"><i class="fas fa-hammer"></i></div>
+                            <div class="label">Gather Metal</div>
+                            <div class="rate" id="metal-rate">+1</div>
+                        </button>
+
+                        <button id="buildBtn" class="action-btn build-btn disabled">
+                            <div class="icon"><i class="fas fa-hard-hat"></i></div>
+                            <div class="label">Build House</div>
+                            <div class="cost" id="build-cost">Cost: 10 Wood</div>
+                            <div class="progress-overlay" id="build-progress"></div>
+                        </button>
+                    </div>
+                </div>
+                <div id="message-log">Start your tiny house journey! Gather materials first.</div>
+            </div>
+
+            <div class="right-panel">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="blueprints">
+                        <i class="fas fa-drafting-compass"></i> Blueprints
+                    </button>
+                    <button class="tab-btn" data-tab="upgrades">
+                        <i class="fas fa-tools"></i> Upgrades
+                    </button>
+                    <button class="tab-btn" data-tab="map">
+                        <i class="fas fa-map-marked-alt"></i> Map
+                    </button>
+                </div>
+                
+                <div id="blueprints" class="tab-content active">
+                    <h2>Select Design</h2>
+                    <div id="blueprint-list" class="card-list">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <div id="upgrades" class="tab-content">
+                    <h2>Tech & Crew</h2>
+                    <div id="upgrade-list" class="card-list">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <div id="map" class="tab-content">
+                    <h2>Expand Territory</h2>
+                    <div id="state-list" class="card-list">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
