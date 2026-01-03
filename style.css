@@ -606,7 +606,10 @@ button {
     width: 100%;
 }
 
-@media (max-width: 768px) {80px; } /* Increased padding */
+@media (max-width: 768px) {
+    body { height: auto; overflow: auto; }
+    .app-container { flex-direction: column; height: auto; overflow: visible; padding-top: 80px; }
+    
     .sidebar { 
         position: fixed; 
         top: 0; 
@@ -619,7 +622,7 @@ button {
         padding: 0 16px; 
         overflow-x: auto; 
         overflow-y: hidden;
-        z-index: 50; /* Lowered from 1000 to be safe, but still above content */
+        z-index: 50;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         background: white;
         border-bottom: 1px solid var(--border);
@@ -643,8 +646,6 @@ button {
     .content-area { padding: 24px; overflow: visible; }
     .add-item-form { flex-direction: column; align-items: stretch; }
     .add-item-form input, .add-item-form select { width: 100%; font-size: 16px; }
-    .solar-results { grid-template-columns: 1fr; }
-    header { flex-direction: column; align-items: flex-start; gap: 20ize: 16px; }
     .solar-results { grid-template-columns: 1fr; }
     header { flex-direction: column; align-items: flex-start; gap: 16px; }
     header button { width: 100%; justify-content: center; }
