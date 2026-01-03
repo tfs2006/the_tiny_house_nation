@@ -591,19 +591,21 @@ button {
 }
 
 @media (max-width: 768px) {
-    .app-container { flex-direction: column; height: auto; overflow: auto; }
-    .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 16px; overflow-x: auto; flex-shrink: 0; }
+    body { height: auto; overflow: auto; } /* Allow body scroll on mobile */
+    .app-container { flex-direction: column; height: auto; overflow: visible; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 16px; overflow-x: auto; flex-shrink: 0; position: sticky; top: 0; z-index: 50; }
     .brand { margin-bottom: 0; margin-right: 24px; font-size: 18px; white-space: nowrap; }
     nav { flex-direction: row; gap: 12px; }
     .nav-btn { padding: 8px 12px; font-size: 14px; white-space: nowrap; }
     .save-status { display: none; }
     .content-area { padding: 20px; overflow: visible; }
     .add-item-form { flex-direction: column; align-items: stretch; }
-    .add-item-form input, .add-item-form select { width: 100%; }
+    .add-item-form input, .add-item-form select { width: 100%; font-size: 16px; } /* Prevent iOS zoom */
     .solar-results { grid-template-columns: 1fr; }
     header { flex-direction: column; align-items: flex-start; gap: 16px; }
     header button { width: 100%; justify-content: center; }
     .dashboard-grid { grid-template-columns: 1fr; }
+    .btn-delete { width: 44px; height: 44px; } /* Larger touch target */
 }
 
 @media (max-width: 480px) {
