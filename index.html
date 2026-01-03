@@ -60,6 +60,9 @@
                 <button class="nav-btn active" data-tab="dashboard" role="tab" aria-selected="true" title="Dashboard">
                     <i class="fas fa-columns"></i> <span>Dashboard</span>
                 </button>
+                <button class="nav-btn" data-tab="checklist" role="tab" aria-selected="false" title="Build Checklist">
+                    <i class="fas fa-tasks"></i> <span>Build Checklist</span>
+                </button>
                 <button class="nav-btn" data-tab="budget" role="tab" aria-selected="false" title="Budget Tracker">
                     <i class="fas fa-calculator"></i> <span>Budget Tracker</span>
                 </button>
@@ -132,6 +135,25 @@
                     <h3>Budget Distribution</h3>
                     <div class="chart-container">
                         <canvas id="dashboardChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checklist View -->
+            <div id="checklist" class="view">
+                <header>
+                    <div>
+                        <h1>Build Checklist</h1>
+                        <p>Your step-by-step roadmap to building a tiny house. Track your progress from <strong>Planning</strong> to <strong>Move-In Day</strong>.</p>
+                    </div>
+                    <div class="header-stats" style="background:white; padding:10px 20px; border-radius:12px; box-shadow:var(--shadow-sm);">
+                        <span id="checklist-percent" style="font-weight:800; color:var(--accent); font-size:18px;">0% Complete</span>
+                    </div>
+                </header>
+                
+                <div class="tool-container">
+                    <div id="checklist-container">
+                        <!-- Injected by JS -->
                     </div>
                 </div>
             </div>

@@ -1,4 +1,72 @@
 // --- State Management ---
+const buildPhases = [
+    {
+        title: "Phase 1: Planning & Prep",
+        tasks: [
+            { id: "p1-1", text: "Determine budget and financing" },
+            { id: "p1-2", text: "Select trailer size and type" },
+            { id: "p1-3", text: "Create or buy floor plans" },
+            { id: "p1-4", text: "Find a build site" },
+            { id: "p1-5", text: "Obtain necessary permits/insurance" }
+        ]
+    },
+    {
+        title: "Phase 2: Trailer & Subfloor",
+        tasks: [
+            { id: "p2-1", text: "Level the trailer" },
+            { id: "p2-2", text: "Install flashing and moisture barrier" },
+            { id: "p2-3", text: "Frame subfloor" },
+            { id: "p2-4", text: "Install subfloor insulation" },
+            { id: "p2-5", text: "Install subfloor sheathing" }
+        ]
+    },
+    {
+        title: "Phase 3: Framing & Sheathing",
+        tasks: [
+            { id: "p3-1", text: "Frame walls" },
+            { id: "p3-2", text: "Frame roof" },
+            { id: "p3-3", text: "Install wall sheathing" },
+            { id: "p3-4", text: "Install roof sheathing" },
+            { id: "p3-5", text: "Wrap house (Tyvek/Housewrap)" }
+        ]
+    },
+    {
+        title: "Phase 4: Dry-In (Roof & Windows)",
+        tasks: [
+            { id: "p4-1", text: "Install roofing material" },
+            { id: "p4-2", text: "Install windows and doors" },
+            { id: "p4-3", text: "Flash windows and doors" }
+        ]
+    },
+    {
+        title: "Phase 5: Rough-Ins",
+        tasks: [
+            { id: "p5-1", text: "Rough-in electrical wiring" },
+            { id: "p5-2", text: "Rough-in plumbing supply/drain" },
+            { id: "p5-3", text: "Rough-in gas lines (if applicable)" },
+            { id: "p5-4", text: "Install ventilation fans" }
+        ]
+    },
+    {
+        title: "Phase 6: Insulation & Interior",
+        tasks: [
+            { id: "p6-1", text: "Install wall/ceiling insulation" },
+            { id: "p6-2", text: "Install vapor barrier (if needed)" },
+            { id: "p6-3", text: "Install interior wall cladding" },
+            { id: "p6-4", text: "Install flooring" }
+        ]
+    },
+    {
+        title: "Phase 7: Finish Work",
+        tasks: [
+            { id: "p7-1", text: "Install cabinets and fixtures" },
+            { id: "p7-2", text: "Finish plumbing (sinks, toilet)" },
+            { id: "p7-3", text: "Finish electrical (outlets, lights)" },
+            { id: "p7-4", text: "Trim and paint" }
+        ]
+    }
+];
+
 const defaultState = {
     budget: [],
     weight: {
@@ -8,7 +76,8 @@ const defaultState = {
     },
     solar: [],
     insulation: [],
-    water: []
+    water: [],
+    checklist: []
 };
 
 let state = JSON.parse(localStorage.getItem('thn_companion_data')) || defaultState;
@@ -29,6 +98,10 @@ const els = {
     progressTip: document.getElementById('progress-tip'),
     toastContainer: document.getElementById('toast-container'),
     
+    // Checklist
+    checklistContainer: document.getElementById('checklist-container'),
+    checklistPercent: document.getElementById('checklist-percent'),
+
     // Budget
     budgetTable: document.querySelector('#budgetTable tbody'),
     budgetTotal: document.getElementById('budgetTotalDisplay'),
@@ -86,6 +159,7 @@ function init() {
         refreshElements();
 
         setupNavigation();
+        setupChecklist();
         setupBudget();
         setupWeight();
         setupSolar();
@@ -143,6 +217,83 @@ function setupNavigation() {
         });
     });
 }
+
+// --- Checklist Logic ---
+function setupChecklist() {
+    renderChecklist();
+}
+
+function renderChecklist() {
+    if (!els.checklistContainer) return;
+    
+    els.checklistContainer.innerHTML = '';
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    // Ensure state.checklist exists (migration for old saves)
+    if (!state.checklist) state.checklist = [];
+
+    buildPhases.forEach((phase, index) => {
+        const phaseDiv = document.createElement('div');
+        phaseDiv.className = 'checklist-phase';
+        
+        // Calculate phase progress
+        const phaseTotal = phase.tasks.length;
+        const phaseCompleted = phase.tasks.filter(t => state.checklist.includes(t.id)).length;
+        totalTasks += phaseTotal;
+        completedTasks += phaseCompleted;
+
+        const isExpanded = index === 0 || phaseCompleted > 0; // Auto-expand first or active phases
+
+        phaseDiv.innerHTML = `
+            <div class="checklist-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+                <h3>${phase.title}</h3>
+                <span class="phase-progress">${phaseCompleted}/${phaseTotal}</span>
+            </div>
+            <ul class="checklist-tasks" style="display: ${isExpanded ? 'block' : 'none'}">
+                ${phase.tasks.map(task => {
+                    const isDone = state.checklist.includes(task.id);
+                    return `
+                        <li class="checklist-item ${isDone ? 'completed' : ''}" onclick="toggleTask('${task.id}')">
+                            <div class="custom-checkbox">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>${task.text}</span>
+                        </li>
+                    `;
+                }).join('')}
+            </ul>
+        `;
+        els.checklistContainer.appendChild(phaseDiv);
+    });
+
+    // Update Header Stats
+    const percent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+    if (els.checklistPercent) {
+        els.checklistPercent.textContent = `${percent}% Complete`;
+    }
+}
+
+window.toggleTask = (id) => {
+    if (!state.checklist) state.checklist = [];
+    
+    if (state.checklist.includes(id)) {
+        state.checklist = state.checklist.filter(t => t !== id);
+    } else {
+        state.checklist.push(id);
+        // Random confetti for fun
+        if (typeof confetti !== 'undefined' && Math.random() > 0.7) {
+             confetti({
+                particleCount: 50,
+                spread: 50,
+                origin: { y: 0.7 },
+                colors: ['#5c946e', '#fdcb6e']
+            });
+        }
+    }
+    saveData();
+    renderChecklist();
+};
 
 // --- Dashboard Logic ---
 function updateDashboard() {
