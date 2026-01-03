@@ -3,7 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiny House Build Companion</title>
+    <title>Tiny House Build Companion | Free Planner & Calculator</title>
+    <meta name="description" content="The ultimate free tool for tiny house builders. Plan your budget, estimate trailer weight, size off-grid solar panels, calculate insulation R-values, and track water usage.">
+    <meta name="keywords" content="tiny house planner, tiny house calculator, solar sizing calculator, trailer weight estimator, tiny home budget, off-grid calculator, DIY tiny house">
+    <meta name="author" content="Tiny House Nation">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tiny House Build Companion | Free Planner & Calculator">
+    <meta property="og:description" content="Plan your tiny house build with precision. Free tools for budgeting, weight estimation, solar sizing, and more.">
+    
+    <!-- JSON-LD for Generative Engine Optimization (GEO) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Tiny House Build Companion",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "A comprehensive utility suite for DIY tiny house builders including budget tracking, weight estimation, and solar system sizing.",
+      "featureList": ["Budget Tracker", "Weight Estimator", "Solar Sizing Calculator", "Insulation R-Value Calculator", "Water Usage Estimator", "PDF Report Export"]
+    }
+    </script>
+
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -59,7 +86,7 @@
                 <header>
                     <div>
                         <h1>Project Overview</h1>
-                        <p>Welcome to your Tiny House build planner.</p>
+                        <p>Welcome to your <strong>Tiny House Build Companion</strong>. This all-in-one planning tool helps DIY builders manage the most critical aspects of their project: <strong>Budget</strong>, <strong>Weight</strong>, and <strong>Off-Grid Systems</strong>.</p>
                     </div>
                     <button class="btn-primary" id="exportPdfBtn"><i class="fas fa-file-pdf"></i> Export Report</button>
                 </header>
@@ -99,7 +126,10 @@
             <!-- Budget View -->
             <div id="budget" class="view">
                 <header>
-                    <h1>Budget Tracker</h1>
+                    <div>
+                        <h1>Budget Tracker</h1>
+                        <p>Keep your build financially on track. Categorize expenses for <strong>Lumber</strong>, <strong>Trailer</strong>, <strong>Electrical</strong>, and more to prevent cost overruns.</p>
+                    </div>
                     <button class="btn-primary" id="addBudgetBtn"><i class="fas fa-plus"></i> Add Item</button>
                 </header>
                 
@@ -129,7 +159,10 @@
             <!-- Weight View -->
             <div id="weight" class="view">
                 <header>
-                    <h1>Weight Estimator</h1>
+                    <div>
+                        <h1>Weight Estimator</h1>
+                        <p><strong>Safety First:</strong> Ensure your tiny house stays within your trailer's <strong>GVWR</strong> (Gross Vehicle Weight Rating). Track the weight of every material to remain road-legal.</p>
+                    </div>
                     <div class="header-inputs">
                         <label>Trailer GVWR (lbs): <input type="number" id="trailerGvwr" value="10000"></label>
                         <label>Trailer Weight (lbs): <input type="number" id="trailerWeight" value="1500"></label>
@@ -161,7 +194,7 @@
             </div>
 
             <!-- Solar View -->
-            <div id="solar" class="view">
+            <div id="soPlanning to go <strong>Off-Grid</strong>? Input your appliances and usage hours to calculate the exact <strong>Solar Panel Array</strong> (Watts) and <strong>Battery Bank</strong> (Ah) size you nee
                 <header>
                     <h1>Solar System Sizing</h1>
                     <p>Calculate your power needs to go off-grid.</p>
