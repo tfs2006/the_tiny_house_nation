@@ -592,7 +592,7 @@ button {
 
 @media (max-width: 768px) {
     .app-container { flex-direction: column; height: auto; overflow: auto; }
-    .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 16px; overflow-x: auto; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 16px; overflow-x: auto; flex-shrink: 0; }
     .brand { margin-bottom: 0; margin-right: 24px; font-size: 18px; white-space: nowrap; }
     nav { flex-direction: row; gap: 12px; }
     .nav-btn { padding: 8px 12px; font-size: 14px; white-space: nowrap; }
@@ -603,4 +603,17 @@ button {
     .solar-results { grid-template-columns: 1fr; }
     header { flex-direction: column; align-items: flex-start; gap: 16px; }
     header button { width: 100%; justify-content: center; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .content-area { padding: 16px; }
+    header h1 { font-size: 24px; }
+    .big-number { font-size: 24px; }
+    .nav-btn { padding: 8px; }
+    .nav-btn span { display: none; } /* Hide text on very small screens, show only icons */
+    .nav-btn i { margin: 0; width: auto; font-size: 18px; }
+    .brand span { display: none; } /* Hide brand text, show only icon */
+    .brand { margin-right: 12px; }
+    .modal-content { width: 95%; padding: 24px; margin: 5vh auto; }
 }
