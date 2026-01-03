@@ -75,20 +75,25 @@ let chartInstance = null;
 
 // --- Initialization ---
 function init() {
-    setupNavigation();
-    setupBudget();
-    setupWeight();
-    setupSolar();
-    setupInsulation();
-    setupWater();
-    updateDashboard();
-    
-    // Load saved inputs
-    els.trailerGvwr.value = state.weight.trailerGvwr;
-    els.trailerWeight.value = state.weight.trailerWeight;
+    try {
+        setupNavigation();
+        setupBudget();
+        setupWeight();
+        setupSolar();
+        setupInsulation();
+        setupWater();
+        
+        // Load saved inputs
+        if (els.trailerGvwr) els.trailerGvwr.value = state.weight.trailerGvwr;
+        if (els.trailerWeight) els.trailerWeight.value = state.weight.trailerWeight;
 
-    // Setup Export
-    els.exportPdfBtn.onclick = generatePDF;
+        // Setup Export
+        if (els.exportPdfBtn) els.exportPdfBtn.onclick = generatePDF;
+
+        updateDashboard();
+    } catch (e) {
+        console.error("Initialization error:", e);
+    }
 }
 
 function saveData() {
@@ -106,8 +111,12 @@ function setupNavigation() {
     els.navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             // Update Buttons
-            els.navBtns.forEach(b => b.classList.remove('active'));
+            els.navBtns.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
             btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
             
             // Update Views
             els.views.forEach(v => v.classList.remove('active'));
@@ -137,6 +146,8 @@ function updateDashboard() {
 }
 
 function updateChart() {
+    if (typeof Chart === 'undefined') return; // Guard against Chart.js not loading
+
     const categories = {};
     state.budget.forEach(item => {
         categories[item.category] = (categories[item.category] || 0) + item.cost;
@@ -436,7 +447,10 @@ window.deleteWater = (id) => {
 
 // Helper
 function formatMoney(amount) {
-   --- PDF Generation ---
+    return '$' + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// --- PDF Generation ---
 function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -495,14 +509,12 @@ function generatePDF() {
     yPos = doc.lastAutoTable.finalY + 15;
 
     // 3. Weight Breakdown
-    // Check if we need a new page
     if (yPos > 250) { doc.addPage(); yPos = 20; }
     
     doc.text("3. Weight Breakdown", 14, yPos);
     yPos += 5;
 
     const weightRows = state.weight.items.map(item => [item.name, `${item.weight} lbs`]);
-    // Add trailer base weight
     weightRows.unshift(['Trailer Base Weight', `${state.weight.trailerWeight} lbs`]);
 
     doc.autoTable({
@@ -539,12 +551,55 @@ function generatePDF() {
     doc.setFontSize(10);
     doc.text(`Recommended Solar Array: ${reqSolar} Watts`, 14, yPos);
     doc.text(`Recommended Battery Bank: ${reqBattery} Ah (@ 12V)`, 14, yPos + 5);
+    yPos += 15;
+
+    // 5. Insulation
+    if (yPos > 250) { doc.addPage(); yPos = 20; }
+    doc.setFontSize(14);
+    doc.text("5. Insulation Strategy", 14, yPos);
+    yPos += 5;
+
+    let totalR = 0;
+    const insulRows = state.insulation.map(item => {
+        const rVal = item.rPerInch * item.thickness;
+        totalR += rVal;
+        return [item.name, `${item.thickness}"`, `R-${rVal.toFixed(1)}`];
+    });
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['Layer', 'Thickness', 'R-Value']],
+        body: insulRows,
+        theme: 'grid',
+        headStyles: { fillColor: [155, 89, 182] },
+        foot: [['Total R-Value', '', `R-${totalR.toFixed(1)}`]]
+    });
     
+    yPos = doc.lastAutoTable.finalY + 15;
+
+    // 6. Water Usage
+    if (yPos > 250) { doc.addPage(); yPos = 20; }
+    doc.text("6. Water Usage Estimation", 14, yPos);
+    yPos += 5;
+
+    let totalGal = 0;
+    const waterRows = state.water.map(item => {
+        const gal = item.factor * item.quantity;
+        totalGal += gal;
+        return [item.name, item.quantity, `${gal.toFixed(1)} Gal`];
+    });
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['Activity', 'Qty/Mins', 'Daily Gallons']],
+        body: waterRows,
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219] },
+        foot: [['Total Daily Water', '', `${totalGal.toFixed(1)} Gal`]]
+    });
+
     // Save
     doc.save('tiny-house-plan.pdf');
-}
-
-//  return '$' + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // Run
