@@ -80,10 +80,36 @@ const defaultState = {
     checklist: []
 };
 
-let state = JSON.parse(localStorage.getItem('thn_companion_data')) || defaultState;
+// --- Profile Management ---
+let profiles = JSON.parse(localStorage.getItem('thn_profiles')) || null;
+let activeProfileId = null;
+let state = null;
+
+// Migration Logic: If old data exists but no profiles, migrate it
+if (!profiles) {
+    const oldData = JSON.parse(localStorage.getItem('thn_companion_data'));
+    const initialData = oldData || JSON.parse(JSON.stringify(defaultState));
+    
+    profiles = {
+        activeId: 'default',
+        data: {
+            'default': { name: 'My Tiny House', data: initialData }
+        }
+    };
+    localStorage.setItem('thn_profiles', JSON.stringify(profiles));
+}
+
+// Load Active Profile
+activeProfileId = profiles.activeId;
+state = profiles.data[activeProfileId].data;
 
 // --- DOM Elements ---
 const els = {
+    // Profile Controls
+    profileSelect: document.getElementById('profileSelect'),
+    newProfileBtn: document.getElementById('newProfileBtn'),
+    deleteProfileBtn: document.getElementById('deleteProfileBtn'),
+
     navBtns: document.querySelectorAll('.nav-btn'),
     views: document.querySelectorAll('.view'),
     
@@ -158,6 +184,7 @@ function init() {
         // Re-query elements to ensure they exist
         refreshElements();
 
+        setupProfiles(); // Initialize Profile Manager
         setupNavigation();
         setupChecklist();
         setupBudget();
@@ -166,9 +193,7 @@ function init() {
         setupInsulation();
         setupWater();
         
-        // Load saved inputs
-        if (els.trailerGvwr) els.trailerGvwr.value = state.weight.trailerGvwr;
-        if (els.trailerWeight) els.trailerWeight.value = state.weight.trailerWeight;
+        loadStateToUI(); // Helper to populate UI from state
 
         // Setup Export
         if (els.exportPdfBtn) els.exportPdfBtn.onclick = generatePDF;
@@ -179,20 +204,107 @@ function init() {
     }
 }
 
+function loadStateToUI() {
+    // Load saved inputs
+    if (els.trailerGvwr) els.trailerGvwr.value = state.weight.trailerGvwr;
+    if (els.trailerWeight) els.trailerWeight.value = state.weight.trailerWeight;
+    
+    // Re-render all lists
+    renderBudgetTable();
+    renderWeightList();
+    renderSolarList();
+    renderLayerList();
+    renderWaterList();
+    renderChecklist();
+    updateDashboard();
+}
+
 function refreshElements() {
     // Refresh critical collections
     els.navBtns = document.querySelectorAll('.nav-btn');
     els.views = document.querySelectorAll('.view');
+    
+    // Profile Elements
+    els.profileSelect = document.getElementById('profileSelect');
+    els.newProfileBtn = document.getElementById('newProfileBtn');
+    els.deleteProfileBtn = document.getElementById('deleteProfileBtn');
 }
 
 function saveData() {
-    localStorage.setItem('thn_companion_data', JSON.stringify(state));
+    // Update current profile data
+    profiles.data[activeProfileId].data = state;
+    localStorage.setItem('thn_profiles', JSON.stringify(profiles));
+    
     updateDashboard();
     
     // Flash save status
     const status = document.getElementById('saveStatus');
-    status.style.opacity = '1';
-    setTimeout(() => status.style.opacity = '0.7', 500);
+    if (status) {
+        status.style.opacity = '1';
+        setTimeout(() => status.style.opacity = '0.7', 500);
+    }
+}
+
+// --- Profile Logic ---
+function setupProfiles() {
+    renderProfileSelect();
+
+    els.profileSelect.onchange = (e) => {
+        switchProfile(e.target.value);
+    };
+
+    els.newProfileBtn.onclick = () => {
+        const name = prompt("Enter a name for your new build profile:");
+        if (name) {
+            const newId = 'profile_' + Date.now();
+            profiles.data[newId] = {
+                name: name,
+                data: JSON.parse(JSON.stringify(defaultState))
+            };
+            switchProfile(newId);
+        }
+    };
+
+    els.deleteProfileBtn.onclick = () => {
+        if (Object.keys(profiles.data).length <= 1) {
+            alert("You must have at least one profile.");
+            return;
+        }
+        
+        if (confirm(`Are you sure you want to delete "${profiles.data[activeProfileId].name}"? This cannot be undone.`)) {
+            delete profiles.data[activeProfileId];
+            // Switch to first available
+            const nextId = Object.keys(profiles.data)[0];
+            switchProfile(nextId);
+        }
+    };
+}
+
+function renderProfileSelect() {
+    if (!els.profileSelect) return;
+    els.profileSelect.innerHTML = '';
+    Object.keys(profiles.data).forEach(id => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = profiles.data[id].name;
+        if (id === activeProfileId) option.selected = true;
+        els.profileSelect.appendChild(option);
+    });
+}
+
+function switchProfile(id) {
+    activeProfileId = id;
+    profiles.activeId = id;
+    state = profiles.data[id].data;
+    
+    // Ensure state structure is up to date (migrations)
+    if (!state.checklist) state.checklist = [];
+    
+    localStorage.setItem('thn_profiles', JSON.stringify(profiles));
+    
+    renderProfileSelect();
+    loadStateToUI();
+    showToast(`Switched to ${profiles.data[id].name}`);
 }
 
 // --- Navigation ---
