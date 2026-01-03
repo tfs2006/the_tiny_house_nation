@@ -78,8 +78,13 @@ const els = {
 let chartInstance = null;
 
 // --- Initialization ---
+document.addEventListener('DOMContentLoaded', init);
+
 function init() {
     try {
+        // Re-query elements to ensure they exist
+        refreshElements();
+
         setupNavigation();
         setupBudget();
         setupWeight();
@@ -98,6 +103,12 @@ function init() {
     } catch (e) {
         console.error("Initialization error:", e);
     }
+}
+
+function refreshElements() {
+    // Refresh critical collections
+    els.navBtns = document.querySelectorAll('.nav-btn');
+    els.views = document.querySelectorAll('.view');
 }
 
 function saveData() {
@@ -706,5 +717,5 @@ function generatePDF() {
     doc.save('tiny-house-plan.pdf');
 }
 
-// Run
-init();
+// Run - Event listener added at top
+// init();

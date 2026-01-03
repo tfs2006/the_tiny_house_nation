@@ -543,7 +543,7 @@ button {
 .modal {
     display: none;
     position: fixed;
-    z-index: 100;
+    z-index: 2000; /* Increased to be above sidebar */
     left: 0;
     top: 0;
     width: 100%;
@@ -723,7 +723,7 @@ button {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 2000;
+    z-index: 3000; /* Highest priority */
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -780,4 +780,10 @@ button {
 
 .btn-pulse {
     animation: pulse-green 2s infinite;
+}
+
+/* Safety for Confetti Canvas */
+body > canvas {
+    pointer-events: none !important;
+    z-index: 9999;
 }
