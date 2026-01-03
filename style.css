@@ -48,7 +48,8 @@ body {
     display: flex;
     flex-direction: column;
     padding: 32px 24px;
-    z-index: 10;
+    position: relative; /* Ensure stacking context */
+    z-index: 100; /* Bring above content */
 }
 
 .brand {
@@ -622,7 +623,7 @@ button {
         padding: 0 16px; 
         overflow-x: auto; 
         overflow-y: hidden;
-        z-index: 50;
+        z-index: 1000; /* Ensure it's above everything on mobile */
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         background: white;
         border-bottom: 1px solid var(--border);
