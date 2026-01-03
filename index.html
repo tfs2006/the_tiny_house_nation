@@ -74,6 +74,9 @@
                 <button class="nav-btn" data-tab="checklist" role="tab" aria-selected="false" title="Build Checklist">
                     <i class="fas fa-tasks"></i> <span>Build Checklist</span>
                 </button>
+                <button class="nav-btn" data-tab="floorplan" role="tab" aria-selected="false" title="Floor Plan">
+                    <i class="fas fa-layer-group"></i> <span>Floor Plan</span>
+                </button>
                 <button class="nav-btn" data-tab="budget" role="tab" aria-selected="false" title="Budget Tracker">
                     <i class="fas fa-calculator"></i> <span>Budget Tracker</span>
                 </button>
@@ -165,6 +168,46 @@
                 <div class="tool-container">
                     <div id="checklist-container">
                         <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floor Plan View -->
+            <div id="floorplan" class="view">
+                <header>
+                    <div>
+                        <h1>Floor Plan Designer</h1>
+                        <p>Visualize your layout. Drag and drop furniture to see what fits in your <strong>Tiny House</strong>.</p>
+                    </div>
+                    <div class="header-inputs">
+                        <label>Length (ft): <input type="number" id="planLength" value="24" min="10" max="40"></label>
+                        <button class="btn-secondary" id="resetPlanBtn">Reset</button>
+                    </div>
+                </header>
+                
+                <div class="floorplan-layout">
+                    <div class="palette-container">
+                        <h3>Furniture</h3>
+                        <div class="palette-grid">
+                            <div class="palette-item" draggable="true" data-type="bed-queen">Queen Bed</div>
+                            <div class="palette-item" draggable="true" data-type="bed-twin">Twin Bed</div>
+                            <div class="palette-item" draggable="true" data-type="sofa">Sofa</div>
+                            <div class="palette-item" draggable="true" data-type="kitchen">Kitchen Unit</div>
+                            <div class="palette-item" draggable="true" data-type="shower">Shower</div>
+                            <div class="palette-item" draggable="true" data-type="toilet">Toilet</div>
+                            <div class="palette-item" draggable="true" data-type="table">Table</div>
+                            <div class="palette-item" draggable="true" data-type="stairs">Stairs</div>
+                        </div>
+                        <p class="help-text">Drag items onto the grid. Click item to rotate. Double-click to delete.</p>
+                    </div>
+                    
+                    <div class="canvas-container">
+                        <div id="floorplan-canvas" class="floorplan-canvas">
+                            <!-- Items injected here -->
+                        </div>
+                        <div class="dimensions-display">
+                            <span id="canvas-dims">8.5' x 24'</span>
+                        </div>
                     </div>
                 </div>
             </div>

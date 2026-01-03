@@ -77,7 +77,11 @@ const defaultState = {
     solar: [],
     insulation: [],
     water: [],
-    checklist: []
+    checklist: [],
+    floorplan: {
+        length: 24,
+        items: []
+    }
 };
 
 // --- Profile Management ---
@@ -127,6 +131,13 @@ const els = {
     // Checklist
     checklistContainer: document.getElementById('checklist-container'),
     checklistPercent: document.getElementById('checklist-percent'),
+
+    // Floor Plan
+    floorplanCanvas: document.getElementById('floorplan-canvas'),
+    planLength: document.getElementById('planLength'),
+    resetPlanBtn: document.getElementById('resetPlanBtn'),
+    canvasDims: document.getElementById('canvas-dims'),
+    paletteItems: document.querySelectorAll('.palette-item'),
 
     // Budget
     budgetTable: document.querySelector('#budgetTable tbody'),
@@ -187,6 +198,7 @@ function init() {
         setupProfiles(); // Initialize Profile Manager
         setupNavigation();
         setupChecklist();
+        setupFloorPlan();
         setupBudget();
         setupWeight();
         setupSolar();
@@ -216,6 +228,7 @@ function loadStateToUI() {
     renderLayerList();
     renderWaterList();
     renderChecklist();
+    renderFloorPlan();
     updateDashboard();
 }
 
@@ -228,6 +241,13 @@ function refreshElements() {
     els.profileSelect = document.getElementById('profileSelect');
     els.newProfileBtn = document.getElementById('newProfileBtn');
     els.deleteProfileBtn = document.getElementById('deleteProfileBtn');
+
+    // Floor Plan Elements
+    els.floorplanCanvas = document.getElementById('floorplan-canvas');
+    els.planLength = document.getElementById('planLength');
+    els.resetPlanBtn = document.getElementById('resetPlanBtn');
+    els.canvasDims = document.getElementById('canvas-dims');
+    els.paletteItems = document.querySelectorAll('.palette-item');
 }
 
 function saveData() {
@@ -406,6 +426,169 @@ window.toggleTask = (id) => {
     saveData();
     renderChecklist();
 };
+
+// --- Floor Plan Logic ---
+function setupFloorPlan() {
+    if (!els.floorplanCanvas) return;
+
+    // Initialize State if missing
+    if (!state.floorplan) {
+        state.floorplan = { length: 24, items: [] };
+    }
+
+    // Setup Canvas Dimensions
+    const updateCanvasSize = () => {
+        const length = parseInt(els.planLength.value) || 24;
+        state.floorplan.length = length;
+        saveData();
+        renderFloorPlan();
+    };
+
+    els.planLength.onchange = updateCanvasSize;
+    els.resetPlanBtn.onclick = () => {
+        if (confirm("Clear all furniture from the plan?")) {
+            state.floorplan.items = [];
+            saveData();
+            renderFloorPlan();
+        }
+    };
+
+    // Drag & Drop - Palette to Canvas
+    els.paletteItems.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('type', item.dataset.type);
+            e.dataTransfer.setData('text', item.innerText);
+        });
+    });
+
+    els.floorplanCanvas.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Allow drop
+    });
+
+    els.floorplanCanvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const type = e.dataTransfer.getData('type');
+        const text = e.dataTransfer.getData('text');
+        
+        // Calculate drop position relative to canvas
+        const rect = els.floorplanCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (type) {
+            addFurnitureItem(type, text, x, y);
+        }
+    });
+}
+
+function addFurnitureItem(type, text, x, y) {
+    const id = Date.now();
+    // Default sizes (approx pixels based on 20px/ft)
+    let width = 60; 
+    let height = 60;
+
+    switch(type) {
+        case 'bed-queen': width = 100; height = 133; break; // 5x6.6 ft
+        case 'bed-twin': width = 76; height = 133; break; // 3.8x6.6 ft
+        case 'sofa': width = 120; height = 60; break; // 6x3 ft
+        case 'kitchen': width = 120; height = 40; break; // 6x2 ft
+        case 'shower': width = 60; height = 60; break; // 3x3 ft
+        case 'toilet': width = 40; height = 40; break; // 2x2 ft
+        case 'table': width = 80; height = 60; break; // 4x3 ft
+        case 'stairs': width = 60; height = 100; break; // 3x5 ft
+    }
+
+    state.floorplan.items.push({ id, type, text, x, y, width, height, rotation: 0 });
+    saveData();
+    renderFloorPlan();
+}
+
+function renderFloorPlan() {
+    if (!els.floorplanCanvas) return;
+
+    // 1. Set Canvas Size (20px per ft)
+    const pxPerFt = 20;
+    const widthPx = 8.5 * pxPerFt; // Fixed width 8.5ft
+    const lengthPx = state.floorplan.length * pxPerFt;
+
+    els.floorplanCanvas.style.width = `${lengthPx}px`;
+    els.floorplanCanvas.style.height = `${widthPx}px`;
+    els.canvasDims.textContent = `8.5' x ${state.floorplan.length}'`;
+    els.planLength.value = state.floorplan.length;
+
+    // 2. Render Items
+    els.floorplanCanvas.innerHTML = ''; // Clear current
+    
+    state.floorplan.items.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'furniture-item';
+        el.textContent = item.text;
+        el.style.width = `${item.width}px`;
+        el.style.height = `${item.height}px`;
+        el.style.left = `${item.x}px`;
+        el.style.top = `${item.y}px`;
+        el.style.transform = `rotate(${item.rotation}deg)`;
+        
+        // Interaction Logic
+        el.onmousedown = (e) => dragElement(e, item.id);
+        el.ondblclick = () => {
+            // Rotate on double click
+            item.rotation = (item.rotation + 90) % 360;
+            saveData();
+            renderFloorPlan();
+        };
+        el.oncontextmenu = (e) => {
+            e.preventDefault();
+            if (confirm(`Delete ${item.text}?`)) {
+                state.floorplan.items = state.floorplan.items.filter(i => i.id !== item.id);
+                saveData();
+                renderFloorPlan();
+            }
+        };
+
+        els.floorplanCanvas.appendChild(el);
+    });
+}
+
+function dragElement(e, id) {
+    e.preventDefault();
+    const item = state.floorplan.items.find(i => i.id === id);
+    if (!item) return;
+
+    let startX = e.clientX;
+    let startY = e.clientY;
+
+    const onMouseMove = (e) => {
+        e.preventDefault();
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        startX = e.clientX;
+        startY = e.clientY;
+
+        item.x += dx;
+        item.y += dy;
+        
+        // Simple boundary check could go here
+        
+        // Update DOM directly for performance
+        const el = e.target; 
+        // Note: e.target might be inner text, so we need the .furniture-item
+        // But since we attach onmousedown to the div, e.target should be it or we use closure
+        // Re-rendering is safer for state sync but slower. Let's re-render on mouse up.
+        // For smooth drag, we update the style of the element being dragged.
+    };
+
+    const onMouseUp = () => {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        saveData();
+        renderFloorPlan(); // Snap to final state
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+}
 
 // --- Dashboard Logic ---
 function updateDashboard() {
