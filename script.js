@@ -467,6 +467,10 @@ function setupInsulation() {
 }
 
 function renderLayerList() {
+    els.layerList.innerHTML = '';
+    let totalR = 0;
+    let totalThick = 0;
+
     if (state.insulation.length === 0) {
         els.layerList.innerHTML = '<li style="justify-content:center; color:var(--text-light);">No insulation layers added. Build your wall assembly above.</li>';
     } else {
@@ -482,11 +486,7 @@ function renderLayerList() {
             `;
             els.layerList.appendChild(li);
         });
-    }     <span>${item.name} (${item.thickness}")</span>
-            <span>R-${itemR.toFixed(1)} <button class="btn-delete" onclick="deleteLayer(${item.id})"><i class="fas fa-times"></i></button></span>
-        `;
-        els.layerList.appendChild(li);
-    });
+    }
 
     els.totalRValue.textContent = `R-${totalR.toFixed(1)}`;
     els.totalThickness.textContent = `${totalThick.toFixed(1)}"`;
@@ -511,7 +511,16 @@ function setupWater() {
             state.water.push({ id: Date.now(), name: activityName, factor, quantity });
             saveData();
             renderWaterList();
+            showToast(`Added ${activityName}`);
             els.waterQuantity.value = '';
+        }
+    };
+}
+
+function renderWaterList() {
+    els.waterList.innerHTML = '';
+    let totalGal = 0;
+
     if (state.water.length === 0) {
         els.waterList.innerHTML = '<li style="justify-content:center; color:var(--text-light);">No water activities added. Estimate your daily usage above.</li>';
     } else {
@@ -526,15 +535,7 @@ function setupWater() {
             `;
             els.waterList.appendChild(li);
         });
-    } totalGal += itemGal;
-
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span>${item.name} (x${item.quantity})</span>
-            <span>${itemGal.toFixed(1)} Gal <button class="btn-delete" onclick="deleteWater(${item.id})"><i class="fas fa-times"></i></button></span>
-        `;
-        els.waterList.appendChild(li);
-    });
+    }
 
     els.totalGallons.textContent = `${totalGal.toFixed(1)} Gal`;
     // Recommend grey tank size: 3 days of storage (excluding toilet if compost, but here we assume simple grey water calc)
