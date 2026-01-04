@@ -924,11 +924,11 @@ function updateProgress() {
         });
         
         if (score === 100) {
-            els.progressTip.textContent = "You're all set! Ready to build.";
-            els.exportPdfBtn.classList.add('btn-pulse');
+            if (els.progressTip) els.progressTip.textContent = "You're all set! Ready to build.";
+            if (els.exportPdfBtn) els.exportPdfBtn.classList.add('btn-pulse');
         } else {
-            els.progressTip.textContent = tips[0] || "Keep going!";
-            els.exportPdfBtn.classList.remove('btn-pulse');
+            if (els.progressTip) els.progressTip.textContent = tips[0] || "Keep going!";
+            if (els.exportPdfBtn) els.exportPdfBtn.classList.remove('btn-pulse');
         }
     }
 }
