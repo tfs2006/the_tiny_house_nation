@@ -450,7 +450,10 @@ function renderChecklist() {
         phaseDiv.querySelectorAll('.checklist-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
-                toggleTask(item.dataset.task);
+                const taskId = item.getAttribute('data-task');
+                if (taskId) {
+                    window.toggleTask(taskId);
+                }
             });
         });
         
