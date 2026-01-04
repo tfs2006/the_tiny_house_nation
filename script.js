@@ -248,7 +248,16 @@ function refreshElements() {
     els.resetPlanBtn = document.getElementById('resetPlanBtn');
     els.canvasDims = document.getElementById('canvas-dims');
     els.paletteItems = document.querySelectorAll('.palette-item');
+
+    // Floor Plan Properties
+    els.propPanel = document.getElementById('item-properties');
+    els.propWidth = document.getElementById('prop-width');
+    els.propHeight = document.getElementById('prop-height');
+    els.propRotate = document.getElementById('prop-rotate');
+    els.propDelete = document.getElementById('prop-delete');
 }
+
+let selectedItemId = null;
 
 function saveData() {
     // Update current profile data
@@ -479,6 +488,52 @@ function setupFloorPlan() {
             addFurnitureItem(type, text, x, y);
         }
     });
+
+    // Property Panel Listeners
+    if (els.propWidth) {
+        els.propWidth.onchange = () => {
+            if (!selectedItemId) return;
+            const item = state.floorplan.items.find(i => i.id === selectedItemId);
+            if (item) {
+                item.width = parseFloat(els.propWidth.value) * 20; // ft to px
+                saveData();
+                renderFloorPlan();
+            }
+        };
+    }
+    if (els.propHeight) {
+        els.propHeight.onchange = () => {
+            if (!selectedItemId) return;
+            const item = state.floorplan.items.find(i => i.id === selectedItemId);
+            if (item) {
+                item.height = parseFloat(els.propHeight.value) * 20; // ft to px
+                saveData();
+                renderFloorPlan();
+            }
+        };
+    }
+    if (els.propRotate) {
+        els.propRotate.onclick = () => {
+            if (!selectedItemId) return;
+            const item = state.floorplan.items.find(i => i.id === selectedItemId);
+            if (item) {
+                item.rotation = (item.rotation + 90) % 360;
+                saveData();
+                renderFloorPlan();
+            }
+        };
+    }
+    if (els.propDelete) {
+        els.propDelete.onclick = () => {
+            if (!selectedItemId) return;
+            if (confirm("Delete selected item?")) {
+                state.floorplan.items = state.floorplan.items.filter(i => i.id !== selectedItemId);
+                selectItem(null);
+                saveData();
+                renderFloorPlan();
+            }
+        };
+    }
 }
 
 function addFurnitureItem(type, text, x, y) {
@@ -496,6 +551,8 @@ function addFurnitureItem(type, text, x, y) {
         case 'toilet': width = 40; height = 40; break; // 2x2 ft
         case 'table': width = 80; height = 60; break; // 4x3 ft
         case 'stairs': width = 60; height = 100; break; // 3x5 ft
+        case 'window': width = 60; height = 10; break; // 3ft wide, thin
+        case 'door': width = 60; height = 60; break; // 3x3 swing
     }
 
     state.floorplan.items.push({ id, type, text, x, y, width, height, rotation: 0 });
@@ -516,12 +573,38 @@ function renderFloorPlan() {
     els.canvasDims.textContent = `8.5' x ${state.floorplan.length}'`;
     els.planLength.value = state.floorplan.length;
 
-    // 2. Render Items
+    // 2. Render Wheel Wells (Standard dual axle placement approx 60% back)
     els.floorplanCanvas.innerHTML = ''; // Clear current
+    
+    const wheelWellX = lengthPx * 0.6;
+    const wheelWellWidth = 5 * pxPerFt;
+    const wheelWellHeight = 1 * pxPerFt;
+
+    // Top Wheel Well
+    const ww1 = document.createElement('div');
+    ww1.className = 'wheel-well';
+    ww1.style.width = `${wheelWellWidth}px`;
+    ww1.style.height = `${wheelWellHeight}px`;
+    ww1.style.left = `${wheelWellX}px`;
+    ww1.style.top = '0px';
+    ww1.textContent = "Wheel Well";
+    els.floorplanCanvas.appendChild(ww1);
+
+    // Bottom Wheel Well
+    const ww2 = document.createElement('div');
+    ww2.className = 'wheel-well';
+    ww2.style.width = `${wheelWellWidth}px`;
+    ww2.style.height = `${wheelWellHeight}px`;
+    ww2.style.left = `${wheelWellX}px`;
+    ww2.style.bottom = '0px';
+    ww2.textContent = "Wheel Well";
+    els.floorplanCanvas.appendChild(ww2);
     
     state.floorplan.items.forEach(item => {
         const el = document.createElement('div');
-        el.className = 'furniture-item';
+        el.className = `furniture-item ${item.type}`;
+        if (item.id === selectedItemId) el.classList.add('selected');
+
         el.textContent = item.text;
         el.style.width = `${item.width}px`;
         el.style.height = `${item.height}px`;
@@ -530,64 +613,113 @@ function renderFloorPlan() {
         el.style.transform = `rotate(${item.rotation}deg)`;
         
         // Interaction Logic
-        el.onmousedown = (e) => dragElement(e, item.id);
-        el.ondblclick = () => {
-            // Rotate on double click
+        el.onmousedown = (e) => {
+            e.stopPropagation();
+            selectItem(item.id);
+            dragElement(e, item.id, el);
+        };
+        el.ontouchstart = (e) => {
+            e.stopPropagation();
+            selectItem(item.id);
+            dragElement(e, item.id, el);
+        };
+
+        el.ondblclick = (e) => {
+            e.stopPropagation();
             item.rotation = (item.rotation + 90) % 360;
             saveData();
             renderFloorPlan();
-        };
-        el.oncontextmenu = (e) => {
-            e.preventDefault();
-            if (confirm(`Delete ${item.text}?`)) {
-                state.floorplan.items = state.floorplan.items.filter(i => i.id !== item.id);
-                saveData();
-                renderFloorPlan();
-            }
+            updatePropertiesPanel();
         };
 
         els.floorplanCanvas.appendChild(el);
     });
+
+    // Click on canvas to deselect
+    els.floorplanCanvas.onclick = (e) => {
+        if (e.target === els.floorplanCanvas) {
+            selectItem(null);
+        }
+    };
 }
 
-function dragElement(e, id) {
-    e.preventDefault();
+function selectItem(id) {
+    selectedItemId = id;
+    renderFloorPlan();
+    updatePropertiesPanel();
+}
+
+function updatePropertiesPanel() {
+    if (!selectedItemId || !els.propPanel) {
+        if (els.propPanel) els.propPanel.style.display = 'none';
+        return;
+    }
+
+    const item = state.floorplan.items.find(i => i.id === selectedItemId);
+    if (!item) {
+        selectItem(null);
+        return;
+    }
+
+    els.propPanel.style.display = 'block';
+    // Convert px to ft for display (20px = 1ft)
+    els.propWidth.value = (item.width / 20).toFixed(1);
+    els.propHeight.value = (item.height / 20).toFixed(1);
+}
+
+function dragElement(e, id, el) {
+    if (e.type === 'mousedown') e.preventDefault(); // Prevent text selection
+    
     const item = state.floorplan.items.find(i => i.id === id);
     if (!item) return;
 
-    let startX = e.clientX;
-    let startY = e.clientY;
+    // Handle both mouse and touch coordinates
+    const getClientX = (evt) => evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const getClientY = (evt) => evt.touches ? evt.touches[0].clientY : evt.clientY;
 
-    const onMouseMove = (e) => {
-        e.preventDefault();
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
+    let startX = getClientX(e);
+    let startY = getClientY(e);
 
-        startX = e.clientX;
-        startY = e.clientY;
+    const onMove = (evt) => {
+        if (evt.type === 'mousemove') evt.preventDefault();
+        
+        const currentX = getClientX(evt);
+        const currentY = getClientY(evt);
+
+        const dx = currentX - startX;
+        const dy = currentY - startY;
+
+        startX = currentX;
+        startY = currentY;
 
         item.x += dx;
         item.y += dy;
         
-        // Simple boundary check could go here
-        
+        // Snap to Grid (10px = 6 inches)
+        const snap = 10;
+        item.x = Math.round(item.x / snap) * snap;
+        item.y = Math.round(item.y / snap) * snap;
+
         // Update DOM directly for performance
-        const el = e.target; 
-        // Note: e.target might be inner text, so we need the .furniture-item
-        // But since we attach onmousedown to the div, e.target should be it or we use closure
-        // Re-rendering is safer for state sync but slower. Let's re-render on mouse up.
-        // For smooth drag, we update the style of the element being dragged.
+        if (el) {
+             el.style.left = `${item.x}px`;
+             el.style.top = `${item.y}px`;
+        }
     };
 
-    const onMouseUp = () => {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+    const onEnd = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
         saveData();
         renderFloorPlan(); // Snap to final state
     };
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
 }
 
 // --- Dashboard Logic ---

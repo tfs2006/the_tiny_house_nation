@@ -197,8 +197,27 @@
                             <div class="palette-item" draggable="true" data-type="toilet">Toilet</div>
                             <div class="palette-item" draggable="true" data-type="table">Table</div>
                             <div class="palette-item" draggable="true" data-type="stairs">Stairs</div>
+                            <div class="palette-item" draggable="true" data-type="window">Window (3')</div>
+                            <div class="palette-item" draggable="true" data-type="door">Door (3')</div>
                         </div>
-                        <p class="help-text">Drag items onto the grid. Click item to rotate. Double-click to delete.</p>
+                        <p class="help-text">Drag to move. Click to select & edit. Double-click to rotate.</p>
+                        
+                        <div id="item-properties" class="properties-panel" style="display:none;">
+                            <h3>Selected Item</h3>
+                            <div class="prop-group">
+                                <label>Width (ft)</label>
+                                <input type="number" id="prop-width" step="0.1">
+                            </div>
+                            <div class="prop-group">
+                                <label>Depth (ft)</label>
+                                <input type="number" id="prop-height" step="0.1">
+                            </div>
+                            <div class="prop-group">
+                                <label>Rotation</label>
+                                <button id="prop-rotate" class="btn-secondary">Rotate 90°</button>
+                            </div>
+                            <button id="prop-delete" class="btn-delete-full">Delete Item</button>
+                        </div>
                     </div>
                     
                     <div class="canvas-container">
@@ -438,6 +457,12 @@
     </div>
     
     <div id="toast-container"></div>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="script.js"></script>
 </body>
