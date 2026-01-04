@@ -340,23 +340,37 @@ function switchProfile(id) {
 function setupNavigation() {
     els.navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            // Update Buttons
-            els.navBtns.forEach(b => {
-                b.classList.remove('active');
-                b.setAttribute('aria-selected', 'false');
-            });
-            btn.classList.add('active');
-            btn.setAttribute('aria-selected', 'true');
-            
-            // Update Views
-            els.views.forEach(v => v.classList.remove('active'));
-            document.getElementById(btn.dataset.tab).classList.add('active');
-            
-            if (btn.dataset.tab === 'dashboard') {
-                updateDashboard();
-            }
+            navigateToTab(btn.dataset.tab);
         });
     });
+
+    // Clickable dashboard cards
+    document.querySelectorAll('[data-goto]').forEach(el => {
+        el.addEventListener('click', () => {
+            navigateToTab(el.dataset.goto);
+        });
+    });
+}
+
+function navigateToTab(tabId) {
+    // Update Buttons
+    els.navBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+        if (b.dataset.tab === tabId) {
+            b.classList.add('active');
+            b.setAttribute('aria-selected', 'true');
+        }
+    });
+    
+    // Update Views
+    els.views.forEach(v => v.classList.remove('active'));
+    const targetView = document.getElementById(tabId);
+    if (targetView) targetView.classList.add('active');
+    
+    if (tabId === 'dashboard') {
+        updateDashboard();
+    }
 }
 
 // --- Checklist Logic ---
@@ -411,7 +425,13 @@ function renderChecklist() {
     // Update Header Stats
     const percent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
     if (els.checklistPercent) {
-        els.checklistPercent.textContent = `${percent}% Complete`;
+        els.checklistPercent.textContent = `${percent}%`;
+    }
+    
+    // Update ring progress
+    const ringFill = document.getElementById('checklist-ring-fill');
+    if (ringFill) {
+        ringFill.style.strokeDasharray = `${percent}, 100`;
     }
 }
 
@@ -830,6 +850,22 @@ function updateProgress() {
         els.progressBar.style.width = `${score}%`;
         els.progressText.textContent = `${score}% Ready`;
         
+        // Update progress badge
+        const progressBadge = document.querySelector('.progress-badge');
+        if (progressBadge) {
+            progressBadge.textContent = `${score}%`;
+            progressBadge.className = 'progress-badge';
+            if (score >= 100) progressBadge.classList.add('complete');
+            else if (score >= 60) progressBadge.classList.add('good');
+        }
+        
+        // Update milestones
+        const milestones = document.querySelectorAll('.milestone');
+        milestones.forEach(m => {
+            const threshold = parseInt(m.dataset.percent || 0);
+            m.classList.toggle('reached', score >= threshold);
+        });
+        
         if (score === 100) {
             els.progressTip.textContent = "You're all set! Ready to build.";
             els.exportPdfBtn.classList.add('btn-pulse');
@@ -983,6 +1019,19 @@ function setupWeight() {
             els.weightItemLbs.value = '';
         }
     };
+
+    // Weight preset buttons
+    document.querySelectorAll('.weight-preset').forEach(btn => {
+        btn.onclick = () => {
+            const name = btn.dataset.name;
+            const weight = parseFloat(btn.dataset.weight);
+            
+            state.weight.items.push({ id: Date.now(), name, weight });
+            saveData();
+            renderWeightList();
+            showToast(`Added ${name} (${weight} lbs)`);
+        };
+    });
 }
 
 function renderWeightList() {
@@ -1006,20 +1055,29 @@ function renderWeightList() {
     // Update Meter
     const totalWeight = itemsWeight + state.weight.trailerWeight;
     const gvwr = state.weight.trailerGvwr;
+    const payload = gvwr - state.weight.trailerWeight;
     const percentage = Math.min(100, (totalWeight / gvwr) * 100);
     
     els.payloadDisplay.textContent = `${totalWeight.toLocaleString()} / ${gvwr.toLocaleString()} lbs`;
     els.weightFill.style.width = `${percentage}%`;
+    
+    // Update percentage display
+    const weightPercentEl = document.getElementById('weightPercent');
+    if (weightPercentEl) {
+        weightPercentEl.textContent = `${Math.round(percentage)}%`;
+    }
     
     els.weightFill.className = 'meter-fill';
     els.weightWarning.textContent = '';
     
     if (percentage > 100) {
         els.weightFill.classList.add('danger');
-        els.weightWarning.textContent = 'OVERWEIGHT! Exceeds Trailer GVWR.';
+        els.weightWarning.textContent = '⚠️ OVERWEIGHT! Exceeds Trailer GVWR.';
+        els.weightWarning.style.color = 'var(--danger)';
     } else if (percentage > 85) {
         els.weightFill.classList.add('warning');
-        els.weightWarning.textContent = 'Warning: Approaching weight limit.';
+        els.weightWarning.textContent = '⚠️ Warning: Approaching weight limit.';
+        els.weightWarning.style.color = 'var(--warning)';
     }
 }
 
@@ -1048,6 +1106,20 @@ function setupSolar() {
             els.solarHours.value = '';
         }
     };
+
+    // Solar preset buttons
+    document.querySelectorAll('.preset-btn[data-watts]').forEach(btn => {
+        btn.onclick = () => {
+            const name = btn.dataset.name;
+            const watts = parseFloat(btn.dataset.watts);
+            const hours = parseFloat(btn.dataset.hours);
+            
+            state.solar.push({ id: Date.now(), name, watts, hours });
+            saveData();
+            renderSolarList();
+            showToast(`Added ${name}`);
+        };
+    });
 }
 
 function renderSolarList() {

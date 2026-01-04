@@ -103,50 +103,87 @@
             <div id="dashboard" class="view active">
                 <header>
                     <div>
-                        <h1>Project Overview</h1>
-                        <p>Welcome to your <strong>Tiny House Build Companion</strong>. This all-in-one planning tool helps DIY builders manage the most critical aspects of their project: <strong>Budget</strong>, <strong>Weight</strong>, and <strong>Off-Grid Systems</strong>.</p>
+                        <h1><i class="fas fa-home"></i> Project Overview</h1>
+                        <p>Welcome to your <strong>Tiny House Build Companion</strong>. Track your progress, manage your budget, and plan your off-grid systems all in one place.</p>
                     </div>
                     <button class="btn-primary" id="exportPdfBtn"><i class="fas fa-file-pdf"></i> Export Report</button>
                 </header>
                 
                 <div class="dashboard-grid">
                     <!-- Progress Card -->
-                    <div class="card full-width-card">
+                    <div class="card full-width-card progress-card-enhanced">
                         <div class="progress-header">
-                            <h3>Build Planning Progress</h3>
-                            <span id="progress-text">0% Ready</span>
+                            <div>
+                                <h3><i class="fas fa-tasks"></i> Build Planning Progress</h3>
+                                <p class="progress-subtitle">Complete all planning sections to prepare for your build</p>
+                            </div>
+                            <div class="progress-badge" id="progress-badge">
+                                <span id="progress-text">0%</span>
+                                <small>Ready</small>
+                            </div>
                         </div>
                         <div class="progress-track">
                             <div class="progress-bar" id="main-progress-bar" style="width: 0%"></div>
                         </div>
-                        <p class="progress-tip" id="progress-tip">Start by adding items to your budget!</p>
+                        <div class="progress-milestones">
+                            <span class="milestone" data-percent="25"><i class="fas fa-clipboard-list"></i> Budget</span>
+                            <span class="milestone" data-percent="50"><i class="fas fa-weight"></i> Weight</span>
+                            <span class="milestone" data-percent="75"><i class="fas fa-sun"></i> Solar</span>
+                            <span class="milestone" data-percent="100"><i class="fas fa-check-circle"></i> Ready!</span>
+                        </div>
                     </div>
 
-                    <div class="card summary-card">
+                    <div class="card summary-card clickable" data-goto="budget">
                         <div class="icon-box budget"><i class="fas fa-dollar-sign"></i></div>
                         <div class="info">
                             <h3>Total Budget</h3>
                             <p class="big-number" id="dash-total-cost">$0</p>
+                            <span class="card-action">View Details <i class="fas fa-arrow-right"></i></span>
                         </div>
                     </div>
-                    <div class="card summary-card">
+                    <div class="card summary-card clickable" data-goto="weight">
                         <div class="icon-box weight"><i class="fas fa-weight-hanging"></i></div>
                         <div class="info">
                             <h3>Est. Weight</h3>
                             <p class="big-number" id="dash-total-weight">0 lbs</p>
+                            <span class="card-action">View Details <i class="fas fa-arrow-right"></i></span>
                         </div>
                     </div>
-                    <div class="card summary-card">
+                    <div class="card summary-card clickable" data-goto="solar">
                         <div class="icon-box solar"><i class="fas fa-bolt"></i></div>
                         <div class="info">
                             <h3>Daily Energy</h3>
                             <p class="big-number" id="dash-total-energy">0 Wh</p>
+                            <span class="card-action">View Details <i class="fas fa-arrow-right"></i></span>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <div class="action-grid">
+                        <button class="action-card" data-goto="floorplan">
+                            <i class="fas fa-drafting-compass"></i>
+                            <span>Design Layout</span>
+                        </button>
+                        <button class="action-card" data-goto="checklist">
+                            <i class="fas fa-clipboard-check"></i>
+                            <span>Build Checklist</span>
+                        </button>
+                        <button class="action-card" data-goto="insulation">
+                            <i class="fas fa-temperature-low"></i>
+                            <span>Plan Insulation</span>
+                        </button>
+                        <button class="action-card" data-goto="water">
+                            <i class="fas fa-tint"></i>
+                            <span>Size Tanks</span>
+                        </button>
                     </div>
                 </div>
 
                 <div class="card chart-card">
-                    <h3>Budget Distribution</h3>
+                    <h3><i class="fas fa-chart-pie"></i> Budget Distribution</h3>
                     <div class="chart-container">
                         <canvas id="dashboardChart"></canvas>
                     </div>
@@ -157,15 +194,22 @@
             <div id="checklist" class="view">
                 <header>
                     <div>
-                        <h1>Build Checklist</h1>
-                        <p>Your step-by-step roadmap to building a tiny house. Track your progress from <strong>Planning</strong> to <strong>Move-In Day</strong>.</p>
+                        <h1><i class="fas fa-clipboard-check"></i> Build Checklist</h1>
+                        <p>Your step-by-step roadmap from <strong>Planning</strong> to <strong>Move-In Day</strong>. Click phases to expand.</p>
                     </div>
-                    <div class="header-stats" style="background:white; padding:10px 20px; border-radius:12px; box-shadow:var(--shadow-sm);">
-                        <span id="checklist-percent" style="font-weight:800; color:var(--accent); font-size:18px;">0% Complete</span>
+                    <div class="checklist-header-stats">
+                        <div class="stat-ring" id="checklist-ring">
+                            <svg viewBox="0 0 36 36">
+                                <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <path class="ring-fill" id="checklist-ring-fill" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            </svg>
+                            <span id="checklist-percent">0%</span>
+                        </div>
+                        <span class="stat-label">Complete</span>
                     </div>
                 </header>
                 
-                <div class="tool-container">
+                <div class="tool-container checklist-container-enhanced">
                     <div id="checklist-container">
                         <!-- Injected by JS -->
                     </div>
@@ -332,31 +376,64 @@
             <div id="weight" class="view">
                 <header>
                     <div>
-                        <h1>Weight Estimator</h1>
-                        <p><strong>Safety First:</strong> Ensure your tiny house stays within your trailer's <strong>GVWR</strong> (Gross Vehicle Weight Rating). Track the weight of every material to remain road-legal.</p>
+                        <h1><i class="fas fa-balance-scale"></i> Weight Estimator</h1>
+                        <p><strong>Safety First:</strong> Ensure your tiny house stays within your trailer's <strong>GVWR</strong>.</p>
                     </div>
-                    <div class="header-inputs">
-                        <label>Trailer GVWR (lbs): <input type="number" id="trailerGvwr" value="10000"></label>
-                        <label>Trailer Weight (lbs): <input type="number" id="trailerWeight" value="1500"></label>
+                    <div class="header-inputs weight-header">
+                        <div class="weight-input-group">
+                            <label><i class="fas fa-truck"></i> GVWR</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="trailerGvwr" value="10000">
+                                <span>lbs</span>
+                            </div>
+                        </div>
+                        <div class="weight-input-group">
+                            <label><i class="fas fa-trailer"></i> Trailer</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="trailerWeight" value="1500">
+                                <span>lbs</span>
+                            </div>
+                        </div>
                     </div>
                 </header>
 
                 <div class="tool-container">
-                    <div class="weight-meter-container">
-                        <div class="meter-label">
-                            <span>Payload Usage</span>
-                            <span id="payloadDisplay">0 / 8500 lbs</span>
+                    <div class="weight-meter-container enhanced-meter">
+                        <div class="meter-header">
+                            <div class="meter-icon"><i class="fas fa-weight-hanging"></i></div>
+                            <div class="meter-info">
+                                <span class="meter-title">Payload Usage</span>
+                                <span id="payloadDisplay" class="meter-value">0 / 8500 lbs</span>
+                            </div>
+                            <div class="meter-percent" id="weightPercent">0%</div>
                         </div>
                         <div class="meter-bar">
                             <div id="weightFill" class="meter-fill" style="width: 0%"></div>
+                            <div class="meter-markers">
+                                <span style="left:50%">50%</span>
+                                <span style="left:85%" class="warning">85%</span>
+                            </div>
                         </div>
                         <div id="weightWarning" class="warning-text"></div>
                     </div>
 
+                    <!-- Quick Add Presets -->
+                    <div class="presets-section">
+                        <h4><i class="fas fa-magic"></i> Quick Add Common Materials</h4>
+                        <div class="presets-grid">
+                            <button class="preset-btn weight-preset" data-name="2x4 Stud (8ft)" data-weight="13"><i class="fas fa-ruler"></i> 2x4 Stud</button>
+                            <button class="preset-btn weight-preset" data-name="Sheet of Plywood" data-weight="75"><i class="fas fa-th-large"></i> Plywood</button>
+                            <button class="preset-btn weight-preset" data-name="Rigid Foam 4x8" data-weight="8"><i class="fas fa-square"></i> Foam Board</button>
+                            <button class="preset-btn weight-preset" data-name="Metal Roofing Panel" data-weight="25"><i class="fas fa-home"></i> Roof Panel</button>
+                            <button class="preset-btn weight-preset" data-name="Window (avg)" data-weight="50"><i class="fas fa-window-maximize"></i> Window</button>
+                            <button class="preset-btn weight-preset" data-name="Entry Door" data-weight="80"><i class="fas fa-door-closed"></i> Door</button>
+                        </div>
+                    </div>
+
                     <div class="add-item-form">
-                        <input type="text" id="weightItemName" placeholder="Item Name (e.g. Framing Lumber)">
+                        <input type="text" id="weightItemName" placeholder="Custom Item Name">
                         <input type="number" id="weightItemLbs" placeholder="Weight (lbs)">
-                        <button class="btn-secondary" id="addWeightBtn">Add</button>
+                        <button class="btn-secondary" id="addWeightBtn"><i class="fas fa-plus"></i> Add</button>
                     </div>
 
                     <ul id="weightList" class="item-list">
@@ -369,34 +446,50 @@
             <div id="solar" class="view">
                 <header>
                     <div>
-                        <h1>Solar System Sizing</h1>
-                        <p>Planning to go <strong>Off-Grid</strong>? Input your appliances and usage hours to calculate the exact <strong>Solar Panel Array</strong> (Watts) and <strong>Battery Bank</strong> (Ah) size you need.</p>
+                        <h1><i class="fas fa-sun"></i> Solar System Sizing</h1>
+                        <p>Planning to go <strong>Off-Grid</strong>? Calculate your <strong>Solar Panel Array</strong> and <strong>Battery Bank</strong> size.</p>
                     </div>
                 </header>
 
                 <div class="tool-container">
-                    <div class="solar-results">
+                    <div class="solar-results enhanced-results">
                         <div class="result-box">
+                            <div class="result-icon"><i class="fas fa-plug"></i></div>
                             <h4>Daily Consumption</h4>
                             <span id="totalWh">0 Wh</span>
                         </div>
-                        <div class="result-box">
+                        <div class="result-box highlight">
+                            <div class="result-icon"><i class="fas fa-solar-panel"></i></div>
                             <h4>Rec. Solar Panels</h4>
                             <span id="recPanels">0 W</span>
-                            <small>(Assuming 5 peak sun hours)</small>
+                            <small>(5 peak sun hours)</small>
                         </div>
-                        <div class="result-box">
+                        <div class="result-box highlight">
+                            <div class="result-icon"><i class="fas fa-car-battery"></i></div>
                             <h4>Rec. Battery Bank</h4>
                             <span id="recBattery">0 Ah</span>
-                            <small>(@ 12V, 50% depth of discharge)</small>
+                            <small>(12V, 50% DoD)</small>
+                        </div>
+                    </div>
+
+                    <!-- Quick Add Presets -->
+                    <div class="presets-section">
+                        <h4><i class="fas fa-magic"></i> Quick Add Common Appliances</h4>
+                        <div class="presets-grid">
+                            <button class="preset-btn" data-name="LED Lights (5 bulbs)" data-watts="50" data-hours="5"><i class="fas fa-lightbulb"></i> LED Lights</button>
+                            <button class="preset-btn" data-name="Phone Charger" data-watts="10" data-hours="2"><i class="fas fa-mobile-alt"></i> Phone</button>
+                            <button class="preset-btn" data-name="Laptop" data-watts="50" data-hours="4"><i class="fas fa-laptop"></i> Laptop</button>
+                            <button class="preset-btn" data-name="Mini Fridge" data-watts="50" data-hours="8"><i class="fas fa-temperature-low"></i> Mini Fridge</button>
+                            <button class="preset-btn" data-name="Vent Fan" data-watts="30" data-hours="4"><i class="fas fa-fan"></i> Vent Fan</button>
+                            <button class="preset-btn" data-name="Water Pump" data-watts="60" data-hours="0.5"><i class="fas fa-faucet"></i> Water Pump</button>
                         </div>
                     </div>
 
                     <div class="add-item-form">
-                        <input type="text" id="solarAppliance" placeholder="Appliance (e.g. LED Lights)">
+                        <input type="text" id="solarAppliance" placeholder="Custom Appliance Name">
                         <input type="number" id="solarWatts" placeholder="Watts">
                         <input type="number" id="solarHours" placeholder="Hours/Day">
-                        <button class="btn-secondary" id="addSolarBtn">Add</button>
+                        <button class="btn-secondary" id="addSolarBtn"><i class="fas fa-plus"></i> Add</button>
                     </div>
 
                     <ul id="solarList" class="item-list">
