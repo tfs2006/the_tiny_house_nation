@@ -387,6 +387,9 @@ function renderChecklist() {
 
     // Ensure state.checklist exists (migration for old saves)
     if (!state.checklist) state.checklist = [];
+    
+    // Phase icons for visual appeal
+    const phaseIcons = ['📋', '🏗️', '🔨', '🏠', '⚡', '🧱', '✨'];
 
     buildPhases.forEach((phase, index) => {
         const phaseDiv = document.createElement('div');
@@ -397,19 +400,33 @@ function renderChecklist() {
         const phaseCompleted = phase.tasks.filter(t => state.checklist.includes(t.id)).length;
         totalTasks += phaseTotal;
         completedTasks += phaseCompleted;
-
-        const isExpanded = index === 0 || phaseCompleted > 0; // Auto-expand first or active phases
+        
+        const isPhaseComplete = phaseCompleted === phaseTotal;
+        const isExpanded = index === 0 || (phaseCompleted > 0 && !isPhaseComplete);
+        
+        if (isPhaseComplete) {
+            phaseDiv.classList.add('phase-complete');
+        }
+        if (isExpanded) {
+            phaseDiv.classList.add('expanded');
+        }
 
         phaseDiv.innerHTML = `
-            <div class="checklist-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                <h3>${phase.title}</h3>
-                <span class="phase-progress">${phaseCompleted}/${phaseTotal}</span>
+            <div class="checklist-header" data-phase="${index}">
+                <h3>
+                    <span class="phase-icon">${phaseIcons[index] || '📌'}</span>
+                    ${phase.title}
+                </h3>
+                <div class="phase-meta">
+                    <span class="phase-progress ${isPhaseComplete ? 'complete' : ''}">${phaseCompleted}/${phaseTotal}</span>
+                    <i class="fas fa-chevron-down expand-icon"></i>
+                </div>
             </div>
             <ul class="checklist-tasks" style="display: ${isExpanded ? 'block' : 'none'}">
                 ${phase.tasks.map(task => {
                     const isDone = state.checklist.includes(task.id);
                     return `
-                        <li class="checklist-item ${isDone ? 'completed' : ''}" onclick="toggleTask('${task.id}')">
+                        <li class="checklist-item ${isDone ? 'completed' : ''}" data-task="${task.id}">
                             <div class="custom-checkbox">
                                 <i class="fas fa-check"></i>
                             </div>
@@ -419,6 +436,24 @@ function renderChecklist() {
                 }).join('')}
             </ul>
         `;
+        
+        // Add click handlers
+        const header = phaseDiv.querySelector('.checklist-header');
+        const taskList = phaseDiv.querySelector('.checklist-tasks');
+        
+        header.addEventListener('click', () => {
+            const isHidden = taskList.style.display === 'none';
+            taskList.style.display = isHidden ? 'block' : 'none';
+            phaseDiv.classList.toggle('expanded', isHidden);
+        });
+        
+        phaseDiv.querySelectorAll('.checklist-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleTask(item.dataset.task);
+            });
+        });
+        
         els.checklistContainer.appendChild(phaseDiv);
     });
 
@@ -442,9 +477,27 @@ window.toggleTask = (id) => {
         state.checklist = state.checklist.filter(t => t !== id);
     } else {
         state.checklist.push(id);
-        // Random confetti for fun
-        if (typeof confetti !== 'undefined' && Math.random() > 0.7) {
-             confetti({
+        
+        // Check if we just completed a phase
+        const completedPhase = buildPhases.find(phase => {
+            const phaseTasks = phase.tasks.map(t => t.id);
+            return phaseTasks.includes(id) && phaseTasks.every(tid => state.checklist.includes(tid));
+        });
+        
+        if (completedPhase) {
+            // Big celebration for completing a phase!
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#5c946e', '#74b9ff', '#fdcb6e', '#2ecc71']
+                });
+            }
+            showToast(`🎉 ${completedPhase.title} Complete!`, 'success');
+        } else if (typeof confetti !== 'undefined' && Math.random() > 0.7) {
+            // Random small confetti for regular tasks
+            confetti({
                 particleCount: 50,
                 spread: 50,
                 origin: { y: 0.7 },
