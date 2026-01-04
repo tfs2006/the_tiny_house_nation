@@ -17,6 +17,35 @@
     --shadow-lg: 0 16px 32px rgba(0,0,0,0.08);
     --radius-md: 12px;
     --radius-lg: 24px;
+    
+    /* Card and surface colors */
+    --card-bg: #ffffff;
+    --sidebar-bg: #ffffff;
+    --input-bg: #ffffff;
+    --modal-bg: #ffffff;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+    --primary: #f5f6fa;
+    --primary-light: #b2bec3;
+    --accent: #6ab07a;
+    --accent-hover: #7ac98a;
+    --danger: #ff7675;
+    --warning: #ffeaa7;
+    --info: #74b9ff;
+    --light: #4a5568;
+    --border: #4a5568;
+    --bg: #1a202c;
+    --text: #f5f6fa;
+    --text-light: #a0aec0;
+    --card-bg: #2d3748;
+    --sidebar-bg: #2d3748;
+    --input-bg: #4a5568;
+    --modal-bg: #2d3748;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+    --shadow-md: 0 8px 16px rgba(0,0,0,0.3);
+    --shadow-lg: 0 16px 32px rgba(0,0,0,0.4);
 }
 
 * {
@@ -42,7 +71,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: var(--sidebar-width);
-    background: #ffffff;
+    background: var(--sidebar-bg);
     border-right: 1px solid var(--border);
     color: var(--primary);
     display: flex;
@@ -2346,6 +2375,323 @@ body > canvas {
 
 .milestone.reached i {
     opacity: 1;
+}
+
+/* ==========================================
+   SIDEBAR UTILITIES (Theme, Export, Import)
+   ========================================== */
+.sidebar-utilities {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.utility-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.utility-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 148, 110, 0.3);
+}
+
+.utility-btn i {
+    font-size: 16px;
+}
+
+.keyboard-hint {
+    text-align: center;
+    margin-top: 12px;
+    opacity: 0.6;
+}
+
+.keyboard-hint kbd {
+    background: var(--light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    border: 1px solid var(--border);
+}
+
+/* ==========================================
+   DARK MODE OVERRIDES
+   ========================================== */
+[data-theme="dark"] .card,
+[data-theme="dark"] .tool-container {
+    background: var(--card-bg);
+}
+
+[data-theme="dark"] .modal-content {
+    background: var(--modal-bg);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: var(--input-bg);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .checklist-tasks {
+    background: var(--card-bg);
+}
+
+[data-theme="dark"] .checklist-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .checklist-item.completed {
+    background-color: rgba(106, 176, 122, 0.15);
+}
+
+[data-theme="dark"] .nav-btn {
+    color: var(--text-light);
+}
+
+[data-theme="dark"] .nav-btn:hover,
+[data-theme="dark"] .nav-btn.active {
+    background: rgba(106, 176, 122, 0.15);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .badge {
+    background: var(--input-bg);
+    color: var(--text);
+}
+
+[data-theme="dark"] .preset-btn {
+    background: var(--input-bg);
+    border-color: var(--border);
+    color: var(--text);
+}
+
+[data-theme="dark"] .preset-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+[data-theme="dark"] .milestone {
+    background: var(--input-bg);
+}
+
+[data-theme="dark"] table {
+    background: var(--card-bg);
+}
+
+[data-theme="dark"] th {
+    background: var(--input-bg);
+}
+
+[data-theme="dark"] tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .floorplan-canvas {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .furniture-item {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .palette-item {
+    background: var(--input-bg);
+    border-color: var(--border);
+    color: var(--text);
+}
+
+[data-theme="dark"] .palette-item:hover {
+    background: var(--accent);
+    color: white;
+}
+
+[data-theme="dark"] .properties-panel {
+    background: var(--card-bg);
+    border-color: var(--border);
+}
+
+/* Undo Toast Styling */
+.toast-undo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toast-undo .undo-btn {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-left: auto;
+}
+
+.toast-undo .undo-btn:hover {
+    background: white;
+    color: var(--accent);
+}
+
+/* Tip of the Day */
+.tip-of-day {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%);
+    border-left: 4px solid var(--warning);
+    margin-bottom: 24px;
+}
+
+.tip-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--warning);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tip-icon i {
+    font-size: 20px;
+    color: #7d6608;
+}
+
+.tip-content {
+    flex: 1;
+}
+
+.tip-content h4 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #7d6608;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tip-content p {
+    margin: 0;
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.tip-refresh {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(125, 102, 8, 0.1);
+    color: #7d6608;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.tip-refresh:hover {
+    background: var(--warning);
+    transform: scale(1.1);
+}
+
+.tip-refresh i {
+    transition: transform 0.3s ease;
+}
+
+[data-theme="dark"] .tip-of-day {
+    background: linear-gradient(135deg, rgba(253, 203, 110, 0.15) 0%, rgba(253, 203, 110, 0.1) 100%);
+    border-left-color: var(--warning);
+}
+
+[data-theme="dark"] .tip-icon {
+    background: rgba(253, 203, 110, 0.3);
+}
+
+[data-theme="dark"] .tip-icon i,
+[data-theme="dark"] .tip-content h4 {
+    color: var(--warning);
+}
+
+[data-theme="dark"] .tip-refresh {
+    background: rgba(253, 203, 110, 0.2);
+    color: var(--warning);
+}
+
+/* Empty State Styling */
+.empty-state {
+    padding: 40px 20px !important;
+}
+
+.empty-state-content {
+    text-align: center;
+    color: var(--text-light);
+}
+
+.empty-state-content i {
+    opacity: 0.3;
+    margin-bottom: 16px;
+    color: var(--accent);
+}
+
+.empty-state-content h4 {
+    margin: 0 0 8px;
+    color: var(--text);
+    font-weight: 600;
+}
+
+.empty-state-content p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Budget Category Headers */
+.category-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+}
+
+.category-header td {
+    padding: 10px 16px !important;
+    font-size: 13px;
+    color: var(--primary);
+    border-bottom: 2px solid var(--accent) !important;
+}
+
+.category-subtotal {
+    text-align: right;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+[data-theme="dark"] .category-header {
+    background: linear-gradient(135deg, #3d4852 0%, #2d3748 100%) !important;
+}
+
+[data-theme="dark"] .category-header td {
+    color: var(--text);
 }
 
 /* Progress Badge Enhancement */

@@ -93,8 +93,26 @@
                     <i class="fas fa-tint"></i> <span>Water</span>
                 </button>
             </nav>
+            
+            <!-- Utility Buttons -->
+            <div class="sidebar-utilities">
+                <button id="themeToggle" class="utility-btn" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="exportDataBtn" class="utility-btn" title="Export Backup">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button id="importDataBtn" class="utility-btn" title="Import Backup">
+                    <i class="fas fa-upload"></i>
+                </button>
+                <input type="file" id="importDataInput" accept=".json" style="display:none;">
+            </div>
+            
             <div class="save-status" id="saveStatus" aria-live="polite">
                 <i class="fas fa-check-circle"></i> Auto-saved
+            </div>
+            <div class="keyboard-hint">
+                <small>Press <kbd>?</kbd> for shortcuts</small>
             </div>
         </aside>
 
@@ -157,6 +175,20 @@
                             <span class="card-action">View Details <i class="fas fa-arrow-right"></i></span>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Tip of the Day -->
+                <div class="tip-of-day card">
+                    <div class="tip-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="tip-content">
+                        <h4>Tip of the Day</h4>
+                        <p id="tipText">Loading tip...</p>
+                    </div>
+                    <button id="newTipBtn" class="tip-refresh" title="Get new tip">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
                 
                 <!-- Quick Actions -->

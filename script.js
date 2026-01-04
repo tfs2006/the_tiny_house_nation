@@ -204,6 +204,7 @@ function init() {
         setupSolar();
         setupInsulation();
         setupWater();
+        setupTipOfDay();
         
         loadStateToUI(); // Helper to populate UI from state
 
@@ -948,7 +949,6 @@ function showToast(message, type = 'success') {
             <p>${message}</p>
         </div>
     `;
-showToast(`Added ${name} to budget!`);
         
     els.toastContainer.appendChild(toast);
 
@@ -1014,6 +1014,7 @@ function setupBudget() {
         state.budget.push({ id: Date.now(), name, category, cost });
         saveData();
         renderBudgetTable();
+        showToast(`Added "${name}" to budget!`, 'success');
         
         els.budgetForm.reset();
         els.budgetModal.style.display = 'none';
@@ -1025,18 +1026,53 @@ function renderBudgetTable() {
     let total = 0;
     
     if (state.budget.length === 0) {
-        els.budgetTable.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-light); padding: 20px;">No budget items added yet. Start by adding your expenses above.</td></tr>';
+        els.budgetTable.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-state">
+                    <div class="empty-state-content">
+                        <i class="fas fa-receipt fa-3x"></i>
+                        <h4>No budget items yet</h4>
+                        <p>Click "Add Item" to start tracking your build costs</p>
+                    </div>
+                </td>
+            </tr>
+        `;
     } else {
+        // Group by category for subtotals
+        const categories = {};
         state.budget.forEach(item => {
+            if (!categories[item.category]) {
+                categories[item.category] = { items: [], total: 0 };
+            }
+            categories[item.category].items.push(item);
+            categories[item.category].total += item.cost;
             total += item.cost;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.name}</td>
-                <td><span class="badge">${item.category}</span></td>
-                <td>${formatMoney(item.cost)}</td>
-                <td><button class="btn-delete" onclick="deleteBudget(${item.id})"><i class="fas fa-trash"></i></button></td>
+        });
+        
+        // Render grouped
+        Object.keys(categories).sort().forEach(category => {
+            const cat = categories[category];
+            
+            // Category header
+            const headerTr = document.createElement('tr');
+            headerTr.className = 'category-header';
+            headerTr.innerHTML = `
+                <td colspan="2"><strong>${category}</strong></td>
+                <td colspan="2" class="category-subtotal">${formatMoney(cat.total)}</td>
             `;
-            els.budgetTable.appendChild(tr);
+            els.budgetTable.appendChild(headerTr);
+            
+            // Items in category
+            cat.items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="padding-left: 24px;">${item.name}</td>
+                    <td><span class="badge">${item.category}</span></td>
+                    <td>${formatMoney(item.cost)}</td>
+                    <td><button class="btn-delete" onclick="deleteBudget(${item.id})"><i class="fas fa-trash"></i></button></td>
+                `;
+                els.budgetTable.appendChild(tr);
+            });
         });
     }
     
@@ -1044,9 +1080,19 @@ function renderBudgetTable() {
 }
 
 window.deleteBudget = (id) => {
-    state.budget = state.budget.filter(i => i.id !== id);
-    saveData();
-    renderBudgetTable();
+    const item = state.budget.find(i => i.id === id);
+    if (item) {
+        state.budget = state.budget.filter(i => i.id !== id);
+        saveData();
+        renderBudgetTable();
+        
+        showUndoToast(`Removed "${item.name}"`, () => {
+            state.budget.push(item);
+            saveData();
+            renderBudgetTable();
+            showToast(`Restored "${item.name}"`, 'success');
+        });
+    }
 };
 
 // --- Weight Logic ---
@@ -1139,9 +1185,19 @@ function renderWeightList() {
 }
 
 window.deleteWeight = (id) => {
-    state.weight.items = state.weight.items.filter(i => i.id !== id);
-    saveData();
-    renderWeightList();
+    const item = state.weight.items.find(i => i.id === id);
+    if (item) {
+        state.weight.items = state.weight.items.filter(i => i.id !== id);
+        saveData();
+        renderWeightList();
+        
+        showUndoToast(`Removed "${item.name}"`, () => {
+            state.weight.items.push(item);
+            saveData();
+            renderWeightList();
+            showToast(`Restored "${item.name}"`, 'success');
+        });
+    }
 };
 
 // --- Solar Logic ---
@@ -1211,9 +1267,19 @@ function renderSolarList() {
 }
 
 window.deleteSolar = (id) => {
-    state.solar = state.solar.filter(i => i.id !== id);
-    saveData();
-    renderSolarList();
+    const item = state.solar.find(i => i.id === id);
+    if (item) {
+        state.solar = state.solar.filter(i => i.id !== id);
+        saveData();
+        renderSolarList();
+        
+        showUndoToast(`Removed "${item.name}"`, () => {
+            state.solar.push(item);
+            saveData();
+            renderSolarList();
+            showToast(`Restored "${item.name}"`, 'success');
+        });
+    }
 };
 
 // --- Insulation Logic ---
@@ -1262,9 +1328,19 @@ function renderLayerList() {
 }
 
 window.deleteLayer = (id) => {
-    state.insulation = state.insulation.filter(i => i.id !== id);
-    saveData();
-    renderLayerList();
+    const item = state.insulation.find(i => i.id === id);
+    if (item) {
+        state.insulation = state.insulation.filter(i => i.id !== id);
+        saveData();
+        renderLayerList();
+        
+        showUndoToast(`Removed "${item.name}"`, () => {
+            state.insulation.push(item);
+            saveData();
+            renderLayerList();
+            showToast(`Restored "${item.name}"`, 'success');
+        });
+    }
 };
 
 // --- Water Logic ---
@@ -1314,9 +1390,19 @@ function renderWaterList() {
 }
 
 window.deleteWater = (id) => {
-    state.water = state.water.filter(i => i.id !== id);
-    saveData();
-    renderWaterList();
+    const item = state.water.find(i => i.id === id);
+    if (item) {
+        state.water = state.water.filter(i => i.id !== id);
+        saveData();
+        renderWaterList();
+        
+        showUndoToast(`Removed "${item.name}"`, () => {
+            state.water.push(item);
+            saveData();
+            renderWaterList();
+            showToast(`Restored "${item.name}"`, 'success');
+        });
+    }
 };
 
 // Helper
@@ -1545,6 +1631,238 @@ function generatePDF() {
     // Save
     doc.save('tiny-house-plan.pdf');
 }
+
+// --- Tip of the Day ---
+const buildTips = [
+    "Consider using SIPs (Structural Insulated Panels) for faster assembly and better insulation.",
+    "Always add 10-15% contingency to your budget for unexpected expenses.",
+    "Position your heaviest items (water tank, appliances) over the axles for better towing balance.",
+    "Use marine-grade plywood in wet areas for better moisture resistance.",
+    "Install a whole-house water shut-off valve for easy winterization.",
+    "Consider a split A/C system - they're more efficient than window units for tiny spaces.",
+    "Plan for vertical storage - walls are valuable real estate in a tiny house!",
+    "Use LED lighting throughout - they produce less heat and use 75% less energy.",
+    "Install a composting toilet to eliminate the need for a black water tank.",
+    "Consider propane for cooking and water heating - it's more efficient off-grid.",
+    "Build your loft at least 3 feet tall to sit up comfortably in bed.",
+    "Use pocket doors and barn doors to save floor space.",
+    "Install a vent fan in the bathroom AND kitchen to control moisture.",
+    "Consider a tankless water heater - they take up less space and never run out.",
+    "Plan your electrical runs before insulating - it's much harder after!",
+    "Use 2x4 walls for a road-legal width, but 2x6 allows more insulation.",
+    "Weigh your trailer empty and full - knowing your weight is critical for safety.",
+    "A 30-gallon fresh water tank is good for 3-5 days of conservative use.",
+    "Consider a mini-split heat pump for both heating and cooling in one unit.",
+    "Use reflective insulation (Reflectix) behind outlets on exterior walls.",
+    "Build your subfloor with pressure-treated lumber for longevity.",
+    "Plan for at least 4 cubic feet of closet space per person.",
+    "Install USB outlets where you'll charge devices - saves using adapters.",
+    "Consider a European-style washer/dryer combo to save space.",
+    "Use 12V DC appliances where possible to reduce inverter load off-grid."
+];
+
+function setupTipOfDay() {
+    const tipText = document.getElementById('tipText');
+    const newTipBtn = document.getElementById('newTipBtn');
+    
+    const showRandomTip = () => {
+        if (tipText) {
+            const tip = buildTips[Math.floor(Math.random() * buildTips.length)];
+            tipText.textContent = tip;
+        }
+    };
+    
+    showRandomTip();
+    
+    if (newTipBtn) {
+        newTipBtn.onclick = () => {
+            newTipBtn.querySelector('i').style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                newTipBtn.querySelector('i').style.transform = '';
+            }, 300);
+            showRandomTip();
+        };
+    }
+}
+
+// --- Dark Mode ---
+function setupDarkMode() {
+    const savedTheme = localStorage.getItem('thn_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    const toggleBtn = document.getElementById('themeToggle');
+    if (toggleBtn) {
+        toggleBtn.onclick = () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('thn_theme', next);
+            updateThemeIcon();
+        };
+        updateThemeIcon();
+    }
+}
+
+function updateThemeIcon() {
+    const toggleBtn = document.getElementById('themeToggle');
+    if (toggleBtn) {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        toggleBtn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    }
+}
+
+// --- Keyboard Shortcuts ---
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Don't trigger if user is typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            return;
+        }
+        
+        // Number keys 1-8 for tab navigation
+        const tabs = ['dashboard', 'checklist', 'floorplan', 'budget', 'weight', 'solar', 'insulation', 'water'];
+        if (e.key >= '1' && e.key <= '8') {
+            e.preventDefault();
+            navigateToTab(tabs[parseInt(e.key) - 1]);
+        }
+        
+        // Escape to close modals
+        if (e.key === 'Escape') {
+            if (els.budgetModal) els.budgetModal.style.display = 'none';
+        }
+        
+        // Ctrl+E or Cmd+E to export PDF
+        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+            e.preventDefault();
+            generatePDF();
+        }
+        
+        // ? to show help
+        if (e.key === '?') {
+            showKeyboardHelp();
+        }
+    });
+}
+
+function showKeyboardHelp() {
+    const helpText = `
+⌨️ Keyboard Shortcuts:
+
+1-8: Navigate tabs
+Esc: Close modal
+Ctrl+E: Export PDF
+?: Show this help
+    `.trim();
+    alert(helpText);
+}
+
+// --- Data Export/Import ---
+function setupDataExportImport() {
+    const exportBtn = document.getElementById('exportDataBtn');
+    const importBtn = document.getElementById('importDataBtn');
+    const importInput = document.getElementById('importDataInput');
+    
+    if (exportBtn) {
+        exportBtn.onclick = exportData;
+    }
+    
+    if (importBtn && importInput) {
+        importBtn.onclick = () => importInput.click();
+        importInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                importData(file);
+            }
+        };
+    }
+}
+
+function exportData() {
+    const dataStr = JSON.stringify(profiles, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tiny-house-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showToast('Data exported successfully!', 'success');
+}
+
+function importData(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (imported.data && imported.activeId) {
+                if (confirm('This will replace all your current data. Continue?')) {
+                    profiles = imported;
+                    localStorage.setItem('thn_profiles', JSON.stringify(profiles));
+                    activeProfileId = profiles.activeId;
+                    state = profiles.data[activeProfileId].data;
+                    loadStateToUI();
+                    renderProfileSelect();
+                    showToast('Data imported successfully!', 'success');
+                }
+            } else {
+                alert('Invalid backup file format.');
+            }
+        } catch (err) {
+            alert('Failed to parse backup file. Make sure it\'s a valid JSON file.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// --- Undo System ---
+let undoStack = [];
+const MAX_UNDO = 10;
+
+function pushUndo(action, data) {
+    undoStack.push({ action, data, timestamp: Date.now() });
+    if (undoStack.length > MAX_UNDO) {
+        undoStack.shift();
+    }
+}
+
+function showUndoToast(message, undoCallback) {
+    if (!els.toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-undo';
+    toast.innerHTML = `
+        <i class="fas fa-trash"></i>
+        <div class="toast-content">
+            <p>${message}</p>
+        </div>
+        <button class="undo-btn">Undo</button>
+    `;
+    
+    const undoBtn = toast.querySelector('.undo-btn');
+    undoBtn.onclick = () => {
+        undoCallback();
+        toast.remove();
+    };
+    
+    els.toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'fadeOutRight 0.3s forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// Initialize additional features after DOM is ready
+const originalInit = init;
+init = function() {
+    originalInit();
+    setupDarkMode();
+    setupKeyboardShortcuts();
+    setupDataExportImport();
+};
 
 // Run - Event listener added at top
 // init();
