@@ -437,6 +437,8 @@ window.toggleTask = (id) => {
 };
 
 // --- Floor Plan Logic ---
+let floorplanZoom = 1;
+
 function setupFloorPlan() {
     if (!els.floorplanCanvas) return;
 
@@ -447,13 +449,62 @@ function setupFloorPlan() {
 
     // Setup Canvas Dimensions
     const updateCanvasSize = () => {
-        const length = parseInt(els.planLength.value) || 24;
+        const length = Math.max(10, Math.min(40, parseInt(els.planLength.value) || 24));
+        els.planLength.value = length;
         state.floorplan.length = length;
         saveData();
         renderFloorPlan();
     };
 
     els.planLength.onchange = updateCanvasSize;
+    
+    // Length +/- buttons
+    const lengthMinus = document.getElementById('lengthMinus');
+    const lengthPlus = document.getElementById('lengthPlus');
+    if (lengthMinus) {
+        lengthMinus.onclick = () => {
+            els.planLength.value = Math.max(10, parseInt(els.planLength.value) - 2);
+            updateCanvasSize();
+        };
+    }
+    if (lengthPlus) {
+        lengthPlus.onclick = () => {
+            els.planLength.value = Math.min(40, parseInt(els.planLength.value) + 2);
+            updateCanvasSize();
+        };
+    }
+
+    // Zoom Controls
+    const zoomIn = document.getElementById('zoomIn');
+    const zoomOut = document.getElementById('zoomOut');
+    const zoomFit = document.getElementById('zoomFit');
+    const zoomLevel = document.getElementById('zoomLevel');
+    const scaler = document.getElementById('canvas-scaler');
+
+    const updateZoom = () => {
+        if (scaler) scaler.style.transform = `scale(${floorplanZoom})`;
+        if (zoomLevel) zoomLevel.textContent = `${Math.round(floorplanZoom * 100)}%`;
+    };
+
+    if (zoomIn) {
+        zoomIn.onclick = () => {
+            floorplanZoom = Math.min(2, floorplanZoom + 0.25);
+            updateZoom();
+        };
+    }
+    if (zoomOut) {
+        zoomOut.onclick = () => {
+            floorplanZoom = Math.max(0.5, floorplanZoom - 0.25);
+            updateZoom();
+        };
+    }
+    if (zoomFit) {
+        zoomFit.onclick = () => {
+            floorplanZoom = 1;
+            updateZoom();
+        };
+    }
+
     els.resetPlanBtn.onclick = () => {
         if (confirm("Clear all furniture from the plan?")) {
             state.floorplan.items = [];
@@ -466,7 +517,9 @@ function setupFloorPlan() {
     els.paletteItems.forEach(item => {
         item.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('type', item.dataset.type);
-            e.dataTransfer.setData('text', item.innerText);
+            // Get just the text without the icon
+            const text = item.innerText.trim();
+            e.dataTransfer.setData('text', text);
         });
     });
 
@@ -545,13 +598,18 @@ function addFurnitureItem(type, text, x, y) {
     switch(type) {
         case 'bed-queen': width = 100; height = 133; break; // 5x6.6 ft
         case 'bed-twin': width = 76; height = 133; break; // 3.8x6.6 ft
+        case 'closet': width = 40; height = 80; break; // 2x4 ft
         case 'sofa': width = 120; height = 60; break; // 6x3 ft
-        case 'kitchen': width = 120; height = 40; break; // 6x2 ft
-        case 'shower': width = 60; height = 60; break; // 3x3 ft
-        case 'toilet': width = 40; height = 40; break; // 2x2 ft
         case 'table': width = 80; height = 60; break; // 4x3 ft
+        case 'desk': width = 80; height = 40; break; // 4x2 ft
+        case 'kitchen': width = 120; height = 48; break; // 6x2.4 ft
+        case 'fridge': width = 40; height = 50; break; // 2x2.5 ft
+        case 'stove': width = 50; height = 50; break; // 2.5x2.5 ft
+        case 'shower': width = 60; height = 60; break; // 3x3 ft
+        case 'toilet': width = 36; height = 50; break; // 1.8x2.5 ft
+        case 'vanity': width = 60; height = 40; break; // 3x2 ft
         case 'stairs': width = 60; height = 100; break; // 3x5 ft
-        case 'window': width = 60; height = 10; break; // 3ft wide, thin
+        case 'window': width = 60; height = 12; break; // 3ft wide, thin
         case 'door': width = 60; height = 60; break; // 3x3 swing
     }
 
@@ -570,15 +628,16 @@ function renderFloorPlan() {
 
     els.floorplanCanvas.style.width = `${lengthPx}px`;
     els.floorplanCanvas.style.height = `${widthPx}px`;
-    els.canvasDims.textContent = `8.5' x ${state.floorplan.length}'`;
-    els.planLength.value = state.floorplan.length;
+    if (els.canvasDims) els.canvasDims.textContent = `8.5' × ${state.floorplan.length}'`;
+    if (els.planLength) els.planLength.value = state.floorplan.length;
 
-    // 2. Render Wheel Wells (Standard dual axle placement approx 60% back)
-    els.floorplanCanvas.innerHTML = ''; // Clear current
+    // 2. Clear and render structural elements
+    els.floorplanCanvas.innerHTML = '';
     
-    const wheelWellX = lengthPx * 0.6;
-    const wheelWellWidth = 5 * pxPerFt;
-    const wheelWellHeight = 1 * pxPerFt;
+    // Wheel Wells (Standard dual axle placement approx 60-70% back)
+    const wheelWellX = lengthPx * 0.65;
+    const wheelWellWidth = 4 * pxPerFt;
+    const wheelWellHeight = 1.5 * pxPerFt;
 
     // Top Wheel Well
     const ww1 = document.createElement('div');
@@ -587,7 +646,7 @@ function renderFloorPlan() {
     ww1.style.height = `${wheelWellHeight}px`;
     ww1.style.left = `${wheelWellX}px`;
     ww1.style.top = '0px';
-    ww1.textContent = "Wheel Well";
+    ww1.innerHTML = '<span>⚙</span>';
     els.floorplanCanvas.appendChild(ww1);
 
     // Bottom Wheel Well
@@ -597,15 +656,18 @@ function renderFloorPlan() {
     ww2.style.height = `${wheelWellHeight}px`;
     ww2.style.left = `${wheelWellX}px`;
     ww2.style.bottom = '0px';
-    ww2.textContent = "Wheel Well";
+    ww2.innerHTML = '<span>⚙</span>';
     els.floorplanCanvas.appendChild(ww2);
     
+    // Render furniture items
     state.floorplan.items.forEach(item => {
         const el = document.createElement('div');
         el.className = `furniture-item ${item.type}`;
         if (item.id === selectedItemId) el.classList.add('selected');
 
-        el.textContent = item.text;
+        // Clean display text (remove icon prefixes if present)
+        const displayText = item.text.replace(/^[^\w]+/, '').trim();
+        el.textContent = displayText;
         el.style.width = `${item.width}px`;
         el.style.height = `${item.height}px`;
         el.style.left = `${item.x}px`;

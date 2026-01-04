@@ -176,56 +176,120 @@
             <div id="floorplan" class="view">
                 <header>
                     <div>
-                        <h1>Floor Plan Designer</h1>
-                        <p>Visualize your layout. Drag and drop furniture to see what fits in your <strong>Tiny House</strong>.</p>
+                        <h1><i class="fas fa-drafting-compass"></i> Floor Plan Designer</h1>
+                        <p>Design your dream layout. Drag furniture onto the trailer canvas and arrange your space.</p>
                     </div>
-                    <div class="header-inputs">
-                        <label>Length (ft): <input type="number" id="planLength" value="24" min="10" max="40"></label>
-                        <button class="btn-secondary" id="resetPlanBtn">Reset</button>
+                    <div class="header-inputs fp-header-controls">
+                        <div class="trailer-size-control">
+                            <label><i class="fas fa-ruler-horizontal"></i> Trailer Length</label>
+                            <div class="size-input-group">
+                                <button class="size-btn" id="lengthMinus"><i class="fas fa-minus"></i></button>
+                                <input type="number" id="planLength" value="24" min="10" max="40">
+                                <span class="size-unit">ft</span>
+                                <button class="size-btn" id="lengthPlus"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <button class="btn-secondary" id="resetPlanBtn"><i class="fas fa-trash-alt"></i> Clear All</button>
                     </div>
                 </header>
                 
                 <div class="floorplan-layout">
                     <div class="palette-container">
-                        <h3>Furniture</h3>
-                        <div class="palette-grid">
-                            <div class="palette-item" draggable="true" data-type="bed-queen">Queen Bed</div>
-                            <div class="palette-item" draggable="true" data-type="bed-twin">Twin Bed</div>
-                            <div class="palette-item" draggable="true" data-type="sofa">Sofa</div>
-                            <div class="palette-item" draggable="true" data-type="kitchen">Kitchen Unit</div>
-                            <div class="palette-item" draggable="true" data-type="shower">Shower</div>
-                            <div class="palette-item" draggable="true" data-type="toilet">Toilet</div>
-                            <div class="palette-item" draggable="true" data-type="table">Table</div>
-                            <div class="palette-item" draggable="true" data-type="stairs">Stairs</div>
-                            <div class="palette-item" draggable="true" data-type="window">Window (3')</div>
-                            <div class="palette-item" draggable="true" data-type="door">Door (3')</div>
+                        <div class="palette-section">
+                            <h4><i class="fas fa-bed"></i> Bedroom</h4>
+                            <div class="palette-grid">
+                                <div class="palette-item" draggable="true" data-type="bed-queen"><i class="fas fa-bed"></i> Queen Bed</div>
+                                <div class="palette-item" draggable="true" data-type="bed-twin"><i class="fas fa-bed"></i> Twin Bed</div>
+                                <div class="palette-item" draggable="true" data-type="closet"><i class="fas fa-door-closed"></i> Closet</div>
+                            </div>
                         </div>
-                        <p class="help-text">Drag to move. Click to select & edit. Double-click to rotate.</p>
+                        
+                        <div class="palette-section">
+                            <h4><i class="fas fa-couch"></i> Living</h4>
+                            <div class="palette-grid">
+                                <div class="palette-item" draggable="true" data-type="sofa"><i class="fas fa-couch"></i> Sofa</div>
+                                <div class="palette-item" draggable="true" data-type="table"><i class="fas fa-table"></i> Table</div>
+                                <div class="palette-item" draggable="true" data-type="desk"><i class="fas fa-laptop"></i> Desk</div>
+                            </div>
+                        </div>
+                        
+                        <div class="palette-section">
+                            <h4><i class="fas fa-utensils"></i> Kitchen</h4>
+                            <div class="palette-grid">
+                                <div class="palette-item" draggable="true" data-type="kitchen"><i class="fas fa-sink"></i> Counter</div>
+                                <div class="palette-item" draggable="true" data-type="fridge"><i class="fas fa-temperature-low"></i> Fridge</div>
+                                <div class="palette-item" draggable="true" data-type="stove"><i class="fas fa-fire"></i> Stove</div>
+                            </div>
+                        </div>
+                        
+                        <div class="palette-section">
+                            <h4><i class="fas fa-bath"></i> Bathroom</h4>
+                            <div class="palette-grid">
+                                <div class="palette-item" draggable="true" data-type="shower"><i class="fas fa-shower"></i> Shower</div>
+                                <div class="palette-item" draggable="true" data-type="toilet"><i class="fas fa-toilet"></i> Toilet</div>
+                                <div class="palette-item" draggable="true" data-type="vanity"><i class="fas fa-hands-wash"></i> Vanity</div>
+                            </div>
+                        </div>
+                        
+                        <div class="palette-section">
+                            <h4><i class="fas fa-th"></i> Structure</h4>
+                            <div class="palette-grid">
+                                <div class="palette-item" draggable="true" data-type="stairs"><i class="fas fa-stairs"></i> Stairs</div>
+                                <div class="palette-item" draggable="true" data-type="door"><i class="fas fa-door-open"></i> Door</div>
+                                <div class="palette-item" draggable="true" data-type="window"><i class="fas fa-window-maximize"></i> Window</div>
+                            </div>
+                        </div>
                         
                         <div id="item-properties" class="properties-panel" style="display:none;">
-                            <h3>Selected Item</h3>
-                            <div class="prop-group">
-                                <label>Width (ft)</label>
-                                <input type="number" id="prop-width" step="0.1">
+                            <h4><i class="fas fa-sliders-h"></i> Selected Item</h4>
+                            <div class="prop-row">
+                                <div class="prop-group">
+                                    <label>Width</label>
+                                    <div class="prop-input-group">
+                                        <input type="number" id="prop-width" step="0.5" min="0.5">
+                                        <span>ft</span>
+                                    </div>
+                                </div>
+                                <div class="prop-group">
+                                    <label>Depth</label>
+                                    <div class="prop-input-group">
+                                        <input type="number" id="prop-height" step="0.5" min="0.5">
+                                        <span>ft</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="prop-group">
-                                <label>Depth (ft)</label>
-                                <input type="number" id="prop-height" step="0.1">
+                            <div class="prop-actions">
+                                <button id="prop-rotate" class="prop-btn"><i class="fas fa-redo"></i> Rotate</button>
+                                <button id="prop-delete" class="prop-btn danger"><i class="fas fa-trash"></i> Delete</button>
                             </div>
-                            <div class="prop-group">
-                                <label>Rotation</label>
-                                <button id="prop-rotate" class="btn-secondary">Rotate 90°</button>
-                            </div>
-                            <button id="prop-delete" class="btn-delete-full">Delete Item</button>
                         </div>
                     </div>
                     
-                    <div class="canvas-container">
-                        <div id="floorplan-canvas" class="floorplan-canvas">
-                            <!-- Items injected here -->
+                    <div class="canvas-wrapper">
+                        <div class="canvas-toolbar">
+                            <button class="toolbar-btn" id="zoomOut" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+                            <span id="zoomLevel">100%</span>
+                            <button class="toolbar-btn" id="zoomIn" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                            <div class="toolbar-divider"></div>
+                            <button class="toolbar-btn" id="zoomFit" title="Fit to View"><i class="fas fa-expand"></i></button>
                         </div>
-                        <div class="dimensions-display">
-                            <span id="canvas-dims">8.5' x 24'</span>
+                        <div class="canvas-container">
+                            <div class="canvas-scaler" id="canvas-scaler">
+                                <div id="floorplan-canvas" class="floorplan-canvas">
+                                    <!-- Trailer outline and items injected here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="canvas-footer">
+                            <div class="dimensions-display">
+                                <i class="fas fa-ruler-combined"></i>
+                                <span id="canvas-dims">8.5' x 24'</span>
+                            </div>
+                            <div class="canvas-legend">
+                                <span class="legend-item"><span class="legend-dot wheel"></span> Wheel Wells</span>
+                                <span class="legend-item"><span class="legend-dot hitch"></span> Hitch</span>
+                            </div>
+                            <p class="help-text"><i class="fas fa-info-circle"></i> Drag to move • Click to select • Double-click to rotate</p>
                         </div>
                     </div>
                 </div>
