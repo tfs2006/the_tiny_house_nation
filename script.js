@@ -452,7 +452,7 @@ function renderChecklist() {
                 e.stopPropagation();
                 const taskId = item.getAttribute('data-task');
                 if (taskId) {
-                    window.toggleTask(taskId);
+                    toggleTask(taskId);
                 }
             });
         });
@@ -473,7 +473,8 @@ function renderChecklist() {
     }
 }
 
-window.toggleTask = (id) => {
+function toggleTask(id) {
+    if (!id) return;
     if (!state.checklist) state.checklist = [];
     
     if (state.checklist.includes(id)) {
@@ -510,7 +511,7 @@ window.toggleTask = (id) => {
     }
     saveData();
     renderChecklist();
-};
+}
 
 // --- Floor Plan Logic ---
 let floorplanZoom = 1;
